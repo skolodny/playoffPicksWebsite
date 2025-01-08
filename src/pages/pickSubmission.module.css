@@ -1,0 +1,47 @@
+.container {
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.input {
+    margin-right: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
+    transition: border-color 0.3s;
+}
+
+.input:focus {
+    border-color: #007bff;
+}
+
+.radio {
+    margin-top: 5px;
+}
+
+.inputGroup {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.radioGroup {
+    display: flex;
+    align-items: center;
+}
+
+.radioLabel {
+    margin-left: 5px;
+}

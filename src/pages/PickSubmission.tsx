@@ -1,4 +1,5 @@
 import React from "react";
+import styles from './pickSubmission.module.css';
 
 const pickArray = [
     { question: "Q1", type: "text", options: [] },
@@ -14,25 +15,25 @@ type Pick = {
 
 const PickSubmission: React.FC = () => {
     return (
-        <div>
+        <div className={styles.container}>
             {pickArray.map((element: Pick, index: number) => {
                 if (element.type === "text" || element.type === "number") {
                     return (
-                        <div key={index}>
-                            <label>{element.question}</label>
-                            <input type={element.type}></input>
+                        <div key={index} className={styles.inputGroup}>
+                            <label className={styles.label}>{element.question}</label>
+                            <input type={element.type} className={styles.input}></input>
                         </div>
                     );
                 } else if (element.type === "radio") {
                     return (
-                        <div key={index}>
-                            <label>{element.question}</label>
+                        <div key={index} className={styles.inputGroup}>
+                            <label className={styles.label}>{element.question}</label>
                             <div>
                                 {element.options.map((option: string, idx: number) => {
                                     return (
-                                        <div key={idx}>
-                                            <input type="radio" value={option} name={element.question}></input>
-                                            <label>{option}</label>
+                                        <div key={idx} className={styles.radioGroup}>
+                                            <input type="radio" value={option} name={element.question} className={styles.radio}></input>
+                                            <label className={styles.radioLabel}>{option}</label>
                                         </div>
                                     );
                                 })}
