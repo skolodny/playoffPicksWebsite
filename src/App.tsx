@@ -3,8 +3,7 @@ import Home from './pages/Home';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import Header from './components/nav/Header';
-
-
+import PickSubmission from './pages/PickSubmission';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -12,6 +11,7 @@ const router = createBrowserRouter(
       <Route index element={<Home />} />
       <Route path="/playoffPicksWebsite/login" element={<Login />} />
       <Route path="/playoffPicksWebsite/register" element={<Register />} />
+      <Route path="/playoffPicksWebsite/pickSubmission" element={<PickSubmission />} />
     </Route>
   )
 )
