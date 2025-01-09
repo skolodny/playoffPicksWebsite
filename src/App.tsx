@@ -4,6 +4,8 @@ import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import Header from './components/nav/Header';
 import PickSubmission from './pages/PickSubmission';
+import { ProtectedRoute } from './routes/ProtectedRoute';
+import AuthProvider from './provider/authProvider';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -11,17 +13,18 @@ const router = createBrowserRouter(
       <Route index element={<Home />} />
       <Route path="/playoffPicksWebsite/login" element={<Login />} />
       <Route path="/playoffPicksWebsite/register" element={<Register />} />
-      <Route path="/playoffPicksWebsite/pickSubmission" element={<PickSubmission />} />
+      <Route element={<ProtectedRoute />}>
+        <Route path="/playoffPicksWebsite/pickSubmission" element={<PickSubmission />} />
+      </Route>
     </Route>
   )
-)
+);
 
 function App() {
-
   return (
-    <>
-      <RouterProvider router={router}/>
-    </>
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
   );
 }
 

@@ -1,0 +1,49 @@
+div {
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="radio"] {
+    margin-right: 10px;
+}
+
+input[type="text"],
+input[type="number"] {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
+    transition: border-color 0.3s;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus {
+    border-color: #007bff;
+}
+
+input[type="radio"] {
+    margin-top: 5px;
+}
+
+div > div {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+}
+
+div > div > label {
+    margin-left: 5px;
+}

@@ -4,7 +4,6 @@ import { Menu } from 'antd';
 import { useState } from 'react';
 import { Outlet, Link } from 'react-router-dom';
 
-
 const Header: React.FC = () => {
   const [current, setCurrent] = useState('h');
   const onClick = (e: { key: string }) => {
