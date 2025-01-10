@@ -1,11 +1,12 @@
 import React from 'react';
 import { HomeTwoTone, EditTwoTone, CheckCircleTwoTone } from '@ant-design/icons';
 import { Menu } from 'antd';
-import { useState } from 'react';
+import { useContext } from 'react';
 import { Outlet, Link } from 'react-router-dom';
+import { AuthContext } from '../../provider/authContext';
 
 const Header: React.FC = () => {
-  const [current, setCurrent] = useState('h');
+  const { current, setCurrent } = useContext(AuthContext);
   const onClick = (e: { key: string }) => {
     console.log('click ', e);
     setCurrent(e.key);
