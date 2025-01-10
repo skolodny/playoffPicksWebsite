@@ -61,7 +61,7 @@ const PickSubmission: React.FC = () => {
 
     const updateData = async () => {
         await axios
-            .get("http://localhost:5000/api/information/getInfo")
+            .post("http://localhost:5000/api/information/submitResponse", { choices: currentChoices })
             .then(success)
             .catch(error);
     }
