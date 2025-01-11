@@ -6,10 +6,12 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   // State to hold the authentication token
   const [token, setToken_] = useState(localStorage.getItem("token"));
   const [current, setCurrent_] = useState('h');
+  const [admin, setAdmin] = useState(false);
 
   // Function to set the authentication token
-  const setToken = (newToken: string | null) => {
+  const setToken = (newToken: string | null, admin: boolean) => {
     setToken_(newToken);
+    setAdmin(admin);
     if (newToken === null) {
       localStorage.removeItem("token");
       return;
@@ -27,9 +29,10 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       token,
       setToken,
       current,
-      setCurrent
+      setCurrent,
+      admin
     }),
-    [token, current]
+    [token, current, admin]
   );
 
   // Provide the authentication context to the children components

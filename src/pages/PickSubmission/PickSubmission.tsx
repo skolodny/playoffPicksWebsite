@@ -49,7 +49,7 @@ const PickSubmission: React.FC = () => {
                 })
                 .catch(() => {
                     setCurrent('l');
-                    setToken(null);
+                    setToken(null, false);
                 });
         dataRes1();
         const dataRes = async () =>

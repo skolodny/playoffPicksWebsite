@@ -24,8 +24,8 @@ const Login: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     await axios.post("https://my-node-app-ua0d.onrender.com/api/users/login", { username, password }).then((response) => {
-      const token: string = response.data.token;
-      setToken(token);
+      const { token, admin } = response.data;
+      setToken(token, admin);
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     }).catch(() => {
       setLoading(false);
