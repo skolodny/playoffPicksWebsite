@@ -1,7 +1,7 @@
 import React from "react";
 import axios from "axios";
 import { useState, useEffect, useContext } from "react";
-import { message } from "antd";
+import { message, Spin } from "antd";
 import { AuthContext } from "../../provider/authContext";
 
 export type Pick = {
@@ -16,6 +16,7 @@ const PickSubmission: React.FC = () => {
     { question: "Q3", type: "number", options: [] }]);
 
     const [currentChoices, setCurrentChoices] = useState<Array<string | number>>([]);
+    const [loading, setLoading] = useState(true);
 
     const [messageApi, contextHolder] = message.useMessage();
 
@@ -42,7 +43,10 @@ const PickSubmission: React.FC = () => {
             await axios
                 .post("https://my-node-app-ua0d.onrender.com/api/information/findResponse")
                 .then((res) => res.data)
-                .then((data) => setCurrentChoices(data.response))
+                .then((data) => {
+                    setCurrentChoices(data.response);
+                    setLoading(false);
+                })
                 .catch(() => {
                     setCurrent('l');
                     setToken(null);
@@ -52,7 +56,10 @@ const PickSubmission: React.FC = () => {
             await axios
                 .get("https://my-node-app-ua0d.onrender.com/api/information/getInfo")
                 .then((res) => res.data)
-                .then((data: { information: { options: Array<Pick> } }) => setPickArray(data.information.options))
+                .then((data: { information: { options: Array<Pick> } }) => {
+                    setPickArray(data.information.options)
+                    setLoading(false);
+                })
                 .catch((err) => console.log(err));
         dataRes();
     }, []);
@@ -76,6 +83,7 @@ const PickSubmission: React.FC = () => {
     }
 
     return (
+        loading ? <Spin size="large"/> :
         <>
             {contextHolder}
             <div id="form">

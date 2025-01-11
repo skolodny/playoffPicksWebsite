@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react"
 import axios from "axios";
-import { Table } from "antd";
+import { Table, Spin } from "antd";
 
 const Home: React.FC = () => {
 
   const [scoreData, setScoreData] = useState([]);
   const [pickData, setPickData] = useState([]);
   const [questions, setQuestions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  
 
   useEffect(() => {
   const dataRes = async () =>
@@ -23,6 +25,7 @@ const Home: React.FC = () => {
       .then((data) => {
         setPickData(data.responses);
         setQuestions(data.questions);
+        setLoading(false);
       })
       .catch((err) => console.log(err));
   dataRes1();
@@ -42,6 +45,7 @@ const Home: React.FC = () => {
   ]
 
   return (
+    loading ? <Spin size="large"/> :
     <div>
         <h1 style={{ textAlign: "center" }}>Playoff Picks</h1>
         <h2>Leaderboard</h2>
