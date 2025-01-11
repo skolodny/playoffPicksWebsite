@@ -43,7 +43,10 @@ const PickSubmission: React.FC = () => {
                 .post("http://localhost:5000/api/information/findResponse")
                 .then((res) => res.data)
                 .then((data) => setCurrentChoices(data.response))
-                .catch(() => setToken(null));
+                .catch(() => {
+                    setCurrent('l');
+                    setToken(null);
+                });
         dataRes1();
         const dataRes = async () =>
             await axios
