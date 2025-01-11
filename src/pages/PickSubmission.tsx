@@ -1,8 +1,9 @@
 import React from "react";
 import styles from './pickSubmission.module.css';
 import axios from "axios";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { message } from "antd";
+import { AuthContext } from "../provider/authContext";
 
 export type Pick = {
     question: string;
@@ -18,6 +19,8 @@ const PickSubmission: React.FC = () => {
     const [currentChoices, setCurrentChoices] = useState<Array<string | number>>([]);
 
     const [messageApi, contextHolder] = message.useMessage();
+
+    const { setCurrent, setToken } = useContext(AuthContext);
 
     const success = () => {
         messageApi.open({
@@ -41,7 +44,7 @@ const PickSubmission: React.FC = () => {
                 .post("http://localhost:5000/api/information/findResponse")
                 .then((res) => res.data)
                 .then((data) => setCurrentChoices(data.response))
-                .catch((err) => console.log(err));
+                .catch(() => setToken(null));
         dataRes1();
         const dataRes = async () =>
             await axios
@@ -50,6 +53,10 @@ const PickSubmission: React.FC = () => {
                 .then((data: { information: { options: Array<Pick> } }) => setPickArray(data.information.options))
                 .catch((err) => console.log(err));
         dataRes();
+    }, []);
+
+    useEffect(() => {
+        setCurrent('p');
     }, []);
 
     const handleChange = (index: number, value: number | string) => {

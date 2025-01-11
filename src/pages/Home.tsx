@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react"
 import axios from "axios";
-import { Table } from "antd";
+import { Table, Col, Row } from "antd";
 
 const Home: React.FC = () => {
 
   const [scoreData, setScoreData] = useState([]);
+  const [pickData, setPickData] = useState([]);
+  const [questions, setQuestions] = useState([]);
 
   useEffect(() => {
   const dataRes = async () =>
@@ -14,6 +16,16 @@ const Home: React.FC = () => {
       .then((data) => setScoreData(data.userScores))
       .catch((err) => console.log(err));
   dataRes();
+  const dataRes1 = async () =>
+    await axios
+      .get("http://localhost:5000/api/information/getAllResponses")
+      .then((res) => res.data)
+      .then((data) => {
+        setPickData(data.responses)
+        setQuestions(data.questions)
+      })
+      .catch((err) => console.log(err));
+  dataRes1();
 }, []);
 
   const columns = [
@@ -30,10 +42,13 @@ const Home: React.FC = () => {
   ]
 
   return (
-    <div>
-        <h1>Playoff Picks</h1>
-        <Table columns={columns} dataSource={scoreData}/>
-    </div>
+    <>
+      <h1 style={{ textAlign: "center"}}>Playoff Picks</h1>
+      <h2>Leaderboard</h2>
+      <Table columns={columns} dataSource={scoreData}/>
+      <h2>Picks</h2>
+      <Table columns={questions} dataSource={pickData}/>
+    </>
   )
 }
 //        

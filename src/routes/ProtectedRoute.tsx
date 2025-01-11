@@ -3,11 +3,12 @@ import { Navigate, Outlet } from "react-router-dom";
 import { AuthContext } from "../provider/authContext";
 
 export const ProtectedRoute = () => {
-    const { token } = useContext(AuthContext);
+    const { token, setCurrent } = useContext(AuthContext);
   
     // Check if the user is authenticated
     if (!token) {
       // If not authenticated, redirect to the login page
+      setCurrent('l');
       return <Navigate to="/playoffPicksWebsite/login" />;
     }
   

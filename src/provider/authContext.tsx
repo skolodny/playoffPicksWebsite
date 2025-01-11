@@ -2,7 +2,7 @@ import { createContext } from "react";
 
 export const AuthContext = createContext<{
   token: string | null;
-  setToken: (newToken: string) => void;
+  setToken: (newToken: string | null) => void;
   current: string;
   setCurrent: (key: string) => void;
 }>({
