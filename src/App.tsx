@@ -3,7 +3,7 @@ import Home from './pages/Home';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import Header from './components/nav/Header';
-import PickSubmission from './pages/PickSubmission';
+import PickSubmission from './pages/PickSubmission/PickSubmission';
 import { ProtectedRoute } from './routes/ProtectedRoute';
 import AuthProvider from './provider/authProvider';
 
