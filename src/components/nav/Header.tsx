@@ -1,5 +1,5 @@
 import React from 'react';
-import { HomeTwoTone, EditTwoTone, CheckCircleTwoTone } from '@ant-design/icons';
+import { HomeTwoTone, CheckCircleTwoTone } from '@ant-design/icons';
 import { Menu } from 'antd';
 import { useContext } from 'react';
 import { Outlet, Link } from 'react-router-dom';

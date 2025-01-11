@@ -8,8 +8,12 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [current, setCurrent_] = useState('h');
 
   // Function to set the authentication token
-  const setToken = (newToken: string) => {
+  const setToken = (newToken: string | null) => {
     setToken_(newToken);
+    if (newToken === null) {
+      localStorage.removeItem("token");
+      return;
+    }
     localStorage.setItem("token", newToken);
   };
 
