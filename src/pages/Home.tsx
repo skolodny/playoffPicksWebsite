@@ -11,14 +11,14 @@ const Home: React.FC = () => {
   useEffect(() => {
   const dataRes = async () =>
     await axios
-      .get("http://localhost:5000/api/users/getTotalUserScores")
+      .get("https://my-node-app-ua0d.onrender.com/api/users/getTotalUserScores")
       .then((res) => res.data)
       .then((data) => setScoreData(data.userScores))
       .catch((err) => console.log(err));
   dataRes();
   const dataRes1 = async () =>
     await axios
-      .get("http://localhost:5000/api/information/getAllResponses")
+      .get("https://my-node-app-ua0d.onrender.com/api/information/getAllResponses")
       .then((res) => res.data)
       .then((data) => {
         setPickData(data.responses);

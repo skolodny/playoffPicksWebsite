@@ -40,7 +40,7 @@ const PickSubmission: React.FC = () => {
     useEffect(() => {
         const dataRes1 = async () =>
             await axios
-                .post("http://localhost:5000/api/information/findResponse")
+                .post("https://my-node-app-ua0d.onrender.com/api/information/findResponse")
                 .then((res) => res.data)
                 .then((data) => setCurrentChoices(data.response))
                 .catch(() => {
@@ -50,7 +50,7 @@ const PickSubmission: React.FC = () => {
         dataRes1();
         const dataRes = async () =>
             await axios
-                .get("http://localhost:5000/api/information/getInfo")
+                .get("https://my-node-app-ua0d.onrender.com/api/information/getInfo")
                 .then((res) => res.data)
                 .then((data: { information: { options: Array<Pick> } }) => setPickArray(data.information.options))
                 .catch((err) => console.log(err));
@@ -70,7 +70,7 @@ const PickSubmission: React.FC = () => {
 
     const updateData = async () => {
         await axios
-            .post("http://localhost:5000/api/information/submitResponse", { choices: currentChoices })
+            .post("https://my-node-app-ua0d.onrender.com/api/information/submitResponse", { choices: currentChoices })
             .then(success)
             .catch(error);
     }

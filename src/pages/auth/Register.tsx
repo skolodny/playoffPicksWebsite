@@ -9,7 +9,7 @@ const Registration: React.FC = () => {
   const handleRegistration = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:5000/api/users/register", { username, password });
+      const response = await axios.post("https://my-node-app-ua0d.onrender.com/api/users/register", { username, password });
       console.log("Registration successful:", response.data);
     } catch (error) {
       console.error("Registration failed:", error);
