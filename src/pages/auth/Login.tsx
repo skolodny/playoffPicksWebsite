@@ -53,6 +53,7 @@ const Login: React.FC = () => {
                       type="text"
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
+                      autoFocus
                     />
                   </div>
                   <div className="form-group">
