@@ -102,6 +102,16 @@ const PickSubmission: React.FC = () => {
             .catch(() => error(editsAllowed ? 'Failed to disable editing' : 'Failed to enable editing. Ensure you are logged in and have proper permissions'));
     }
 
+    const calculateScores = async () => {
+        await axios
+            .post("https://my-node-app-ua0d.onrender.com/api/admin/calculateScores")
+            .then(() => 
+                {
+                    success('Scores calculated. Check the leaderboard to see the updated scores');
+                })
+            .catch(() => error('Failed to calculate scores. Ensure you are logged in and have proper permissions'));
+    }
+
     return (
         loading ? <Spin size="large"/> :
         <>
@@ -133,6 +143,7 @@ const PickSubmission: React.FC = () => {
                 <button onClick={() => updateData()} hidden={!editsAllowed}>Save</button>
                 { admin ? <button onClick={() => setCorrectAnswers()}>Save as Correct Answers</button> : <></> }
                 { admin ? <button onClick={() => setEditStatus()}>{editsAllowed ? 'Disable Editing' : 'Enable Editing'}</button> : <></> }
+                { admin ? <button onClick={() => calculateScores()}>Calculate Scores</button> : <></> }
             </div>
         </>
 
