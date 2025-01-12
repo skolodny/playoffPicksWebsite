@@ -184,7 +184,7 @@ const PickSubmission: React.FC = () => {
                                     </Button>
                                 </Col>
                                 <Col>
-                                    <Button type="danger" onClick={calculateScores}>
+                                    <Button type="primary" onClick={calculateScores}>
                                         Calculate Scores
                                     </Button>
                                 </Col>
