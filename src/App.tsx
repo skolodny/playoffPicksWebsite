@@ -6,7 +6,7 @@ import PickSubmission from './pages/PickSubmission/PickSubmission';
 import { ProtectedRoute } from './routes/ProtectedRoute';
 import AuthProvider from './provider/authProvider';
 import { AdminProtectedRoute } from './routes/AdminProtectedRoute';
-import { CreateQuestions } from './pages/admin/createQuestions';
+import { CreateQuestions } from './pages/admin/CreateQuestions';
 
 const router = createHashRouter(
   createRoutesFromElements(
