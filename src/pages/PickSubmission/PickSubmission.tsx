@@ -179,12 +179,12 @@ const PickSubmission: React.FC = () => {
                                     </Button>
                                 </Col>
                                 <Col>
-                                    <Button type="default" onClick={setEditStatus}>
+                                    <Button type="dashed" onClick={setEditStatus}>
                                         {editsAllowed ? "Disable Editing" : "Enable Editing"}
                                     </Button>
                                 </Col>
                                 <Col>
-                                    <Button type="primary" onClick={calculateScores}>
+                                    <Button type="dashed" onClick={calculateScores}>
                                         Calculate Scores
                                     </Button>
                                 </Col>
