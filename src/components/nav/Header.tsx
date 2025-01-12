@@ -15,16 +15,16 @@ const Header: React.FC = () => {
     <>
       <Menu onClick={onClick} selectedKeys={[current]} mode="horizontal">
         <Menu.Item key="h" icon={<HomeTwoTone />}>
-          <Link to="/playoffPicksWebsite">Home</Link>
+          <Link to="/">Home</Link>
         </Menu.Item>
         {token && (
           <Menu.Item key="p" icon={<CheckCircleTwoTone />}>
-            <Link to="/playoffPicksWebsite/pickSubmission">Pick Submission</Link>
+            <Link to="/pickSubmission">Pick Submission</Link>
           </Menu.Item>
         )}
         {!token && (
           <Menu.Item key="l" icon={<CheckCircleTwoTone />}>
-            <Link to="/playoffPicksWebsite/login">Login</Link>
+            <Link to="/login">Login</Link>
           </Menu.Item>
         )}
       </Menu>

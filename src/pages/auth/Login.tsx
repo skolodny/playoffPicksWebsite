@@ -41,7 +41,7 @@ const Login: React.FC = () => {
     <>
       {contextHolder}
       {
-        token ? <Navigate to="/playoffPicksWebsite/pickSubmission" /> :
+        token ? <Navigate to="/pickSubmission" /> :
           (loading ? <Spin size="large" /> :
             <>
               <div className="login-container">

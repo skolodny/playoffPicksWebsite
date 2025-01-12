@@ -1,4 +1,4 @@
-import { Route, createBrowserRouter, createRoutesFromElements, RouterProvider } from 'react-router-dom';
+import { Route, createHashRouter, createRoutesFromElements, RouterProvider } from 'react-router-dom';
 import Home from './pages/Home';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
@@ -7,14 +7,14 @@ import PickSubmission from './pages/PickSubmission/PickSubmission';
 import { ProtectedRoute } from './routes/ProtectedRoute';
 import AuthProvider from './provider/authProvider';
 
-const router = createBrowserRouter(
+const router = createHashRouter(
   createRoutesFromElements(
-    <Route path="/playoffPicksWebsite" element={<Header />}>
+    <Route path="/" element={<Header />}>
       <Route index element={<Home />} />
-      <Route path="/playoffPicksWebsite/login" element={<Login />} />
-      <Route path="/playoffPicksWebsite/register" element={<Register />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
       <Route element={<ProtectedRoute />}>
-        <Route path="/playoffPicksWebsite/pickSubmission" element={<PickSubmission />} />
+        <Route path="/pickSubmission" element={<PickSubmission />} />
       </Route>
     </Route>
   )
