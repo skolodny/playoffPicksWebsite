@@ -91,6 +91,17 @@ const PickSubmission: React.FC = () => {
             .catch(() => error('Failed to save as correct answers. Ensure you are logged in and have proper permissions'));
     }
 
+    const setEditStatus = async () => {
+        await axios
+            .post("https://my-node-app-ua0d.onrender.com/api/admin/setEditStatus", { editsAllowed: !editsAllowed })
+            .then(() => 
+                {
+                    success(editsAllowed ? 'Editing disabled' : 'Editing enabled');
+                    setEditsAllowed(!editsAllowed);
+                })
+            .catch(() => error(editsAllowed ? 'Failed to disable editing' : 'Failed to enable editing. Ensure you are logged in and have proper permissions'));
+    }
+
     return (
         loading ? <Spin size="large"/> :
         <>
@@ -121,6 +132,7 @@ const PickSubmission: React.FC = () => {
                 })}
                 <button onClick={() => updateData()} hidden={!editsAllowed}>Save</button>
                 { admin ? <button onClick={() => setCorrectAnswers()}>Save as Correct Answers</button> : <></> }
+                { admin ? <button onClick={() => setEditStatus()}>{editsAllowed ? 'Disable Editing' : 'Enable Editing'}</button> : <></> }
             </div>
         </>
 
