@@ -1,8 +1,12 @@
 import React from "react";
 import axios from "axios";
 import { useState, useEffect, useContext } from "react";
-import { message, Spin } from "antd";
+import { message, Spin, Button, Card as AntCard, Input, Select, Typography, Divider, Space, Row, Col } from "antd";
 import { AuthContext } from "../../provider/authContext";
+import "./PickSubmission.css"
+
+const{Title, Text} = Typography;
+const{Option} = Select
 
 export type Pick = {
     question: string;
@@ -112,42 +116,84 @@ const PickSubmission: React.FC = () => {
             .catch(() => error('Failed to calculate scores. Ensure you are logged in and have proper permissions'));
     }
 
-    return (
-        loading ? <Spin size="large"/> :
+    return loading ? (
+        <div className="spin-container">
+            <Spin size="large" />
+        </div>
+    ) : (
         <>
             {contextHolder}
-            <div id="form">
-                {pickArray.map((element: Pick, index: number) => {
-                    if (element.type === "text" || element.type === "number") {
-                        return (
-                            <div key={index}>
-                                <label>{element.question}</label>
-                                <input value={currentChoices?.[index]} onChange={(e) => handleChange(index, e.target.value)} disabled={!editsAllowed && !admin} />
+            <div className="pick-submission-container">
+                <AntCard className="form-card" bordered={false}>
+                    <Title level={2} className="form-title">
+                        Pick Submission Form
+                    </Title>
+                    <Divider />
+                    <Space direction="vertical" size="large" style={{ width: "100%" }}>
+                        {pickArray.map((element: Pick, index: number) => (
+                            <div key={index} className="form-item">
+                                <Text strong className="form-label">
+                                    {element.question}
+                                </Text>
+                                {element.type === "text" || element.type === "number" ? (
+                                    <Input
+                                        className="form-input"
+                                        value={currentChoices[index] || ""}
+                                        onChange={(e: { target: { value: string | number; }; }) =>
+                                            handleChange(index, e.target.value)
+                                        }
+                                        disabled={!editsAllowed && !admin}
+                                        type={element.type}
+                                    />
+                                ) : element.type === "radio" ? (
+                                    <Select
+                                        className="form-select"
+                                        value={currentChoices[index]}
+                                        onChange={(value: string | number) => handleChange(index, value)}
+                                        disabled={!editsAllowed && !admin}
+                                    >
+                                        {element.options.map((option, optIndex) => (
+                                            <Option key={`${index}-${optIndex}`} value={option}>
+                                                {option}
+                                            </Option>
+                                        ))}
+                                    </Select>
+                                ) : null}
                             </div>
-                        );
-                    } else if (element.type === "radio") {
-                        return (
-                            <div key={index}>
-                                <label>{element.question}</label>
-                                <select value={currentChoices?.[index]} onChange={(e) => handleChange(index, e.target.value)} disabled={!editsAllowed && !admin}>
-                                    {element.options.map((option: string) => {
-                                        return (
-                                            <option value={option}>{option}</option>
-                                        );
-                                    })}
-                                </select>
-                            </div>
-                        );
-                    }
-                })}
-                <button onClick={() => updateData()} hidden={!editsAllowed}>Save</button>
-                { admin ? <button onClick={() => setCorrectAnswers()}>Save as Correct Answers</button> : <></> }
-                { admin ? <button onClick={() => setEditStatus()}>{editsAllowed ? 'Disable Editing' : 'Enable Editing'}</button> : <></> }
-                { admin ? <button onClick={() => calculateScores()}>Calculate Scores</button> : <></> }
+                        ))}
+                    </Space>
+                    <Divider />
+                    <Row gutter={16} justify="end">
+                        {editsAllowed && (
+                            <Col>
+                                <Button type="primary" onClick={updateData}>
+                                    Save
+                                </Button>
+                            </Col>
+                        )}
+                        {admin && (
+                            <>
+                                <Col>
+                                    <Button type="dashed" onClick={setCorrectAnswers}>
+                                        Save as Correct Answers
+                                    </Button>
+                                </Col>
+                                <Col>
+                                    <Button type="default" onClick={setEditStatus}>
+                                        {editsAllowed ? "Disable Editing" : "Enable Editing"}
+                                    </Button>
+                                </Col>
+                                <Col>
+                                    <Button type="danger" onClick={calculateScores}>
+                                        Calculate Scores
+                                    </Button>
+                                </Col>
+                            </>
+                        )}
+                    </Row>
+                </AntCard>
             </div>
         </>
-
     );
 };
-
 export default PickSubmission;
