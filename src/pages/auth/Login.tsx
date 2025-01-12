@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import axios from "axios";
 import "./login.css"; // Import the CSS file
 import { AuthContext } from "../../provider/authContext";
@@ -9,8 +9,12 @@ const Login: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const { token, setToken } = useContext(AuthContext);
+  const { token, setToken, setCurrent } = useContext(AuthContext);
   const [messageApi, contextHolder] = message.useMessage();
+
+  useEffect(() => {
+    setCurrent('l');
+  }, []);
 
   const error = () => {
     messageApi.open({
@@ -35,35 +39,35 @@ const Login: React.FC = () => {
 
   return (
     <>
-    {contextHolder}
-    {
-    token ? <Navigate to="/playoffPicksWebsite/pickSubmission" /> :
-      (loading ? <Spin size="large" /> :
-        <>
-          <div className="login-container">
-            <h2>Login</h2>
-            <form onSubmit={handleLogin}>
-              <div className="form-group">
-                <label>Username:</label>
-                <input
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                />
+      {contextHolder}
+      {
+        token ? <Navigate to="/playoffPicksWebsite/pickSubmission" /> :
+          (loading ? <Spin size="large" /> :
+            <>
+              <div className="login-container">
+                <h2>Login</h2>
+                <form onSubmit={handleLogin}>
+                  <div className="form-group">
+                    <label>Username:</label>
+                    <input
+                      type="text"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Password:</label>
+                    <input
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                    />
+                  </div>
+                  <input type="submit" className="login-button" value="Submit" />
+                </form>
               </div>
-              <div className="form-group">
-                <label>Password:</label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </div>
-              <button type="submit" className="login-button">Login</button>
-            </form>
-          </div>
-        </>
-      )}
+            </>
+          )}
     </>
   );
 };
