@@ -6,7 +6,7 @@ import { Outlet, Link } from 'react-router-dom';
 import { AuthContext } from '../../provider/authContext';
 
 const Header: React.FC = () => {
-  const { current, token, setCurrent } = useContext(AuthContext);
+  const { current, token, admin, setCurrent } = useContext(AuthContext);
   const onClick = (e: { key: string }) => {
     setCurrent(e.key);
   };
@@ -25,6 +25,11 @@ const Header: React.FC = () => {
         {!token && (
           <Menu.Item key="l" icon={<CheckCircleTwoTone />}>
             <Link to="/login">Login</Link>
+          </Menu.Item>
+        )}
+        {token && admin && (
+          <Menu.Item key="a" icon={<CheckCircleTwoTone />}>
+            <Link to="/createQuestions">Create Questions</Link>
           </Menu.Item>
         )}
       </Menu>

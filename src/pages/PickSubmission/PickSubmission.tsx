@@ -145,14 +145,14 @@ const PickSubmission: React.FC = () => {
                                         disabled={!editsAllowed && !admin}
                                         type={element.type}
                                     />
-                                ) : element.type === "radio" ? (
+                                ) : element.type === "dropdown" ? (
                                     <Select
                                         className="form-select"
                                         value={currentChoices[index]}
                                         onChange={(value: string | number) => handleChange(index, value)}
                                         disabled={!editsAllowed && !admin}
                                     >
-                                        {element.options.map((option, optIndex) => (
+                                        {element?.options.map((option, optIndex) => (
                                             <Option key={`${index}-${optIndex}`} value={option}>
                                                 {option}
                                             </Option>

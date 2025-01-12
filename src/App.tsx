@@ -5,6 +5,8 @@ import Header from './components/nav/Header';
 import PickSubmission from './pages/PickSubmission/PickSubmission';
 import { ProtectedRoute } from './routes/ProtectedRoute';
 import AuthProvider from './provider/authProvider';
+import { AdminProtectedRoute } from './routes/AdminProtectedRoute';
+import { CreateQuestions } from './pages/admin/createQuestions';
 
 const router = createHashRouter(
   createRoutesFromElements(
@@ -13,6 +15,9 @@ const router = createHashRouter(
       <Route path="/login" element={<Login />} />
       <Route element={<ProtectedRoute />}>
         <Route path="/pickSubmission" element={<PickSubmission />} />
+      </Route>
+      <Route element={<AdminProtectedRoute />}>
+        <Route path="/createQuestions" element={<CreateQuestions />} />
       </Route>
     </Route>
   )

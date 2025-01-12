@@ -15,7 +15,10 @@ const Home: React.FC = () => {
     await axios
       .get("https://my-node-app-ua0d.onrender.com/api/users/getTotalUserScores")
       .then((res) => res.data)
-      .then((data) => setScoreData(data.userScores))
+      .then((data) => {
+        setScoreData(data.userScores)
+        setLoading(false);
+      })
       .catch((err) => console.log(err));
   dataRes();
   const dataRes1 = async () =>
