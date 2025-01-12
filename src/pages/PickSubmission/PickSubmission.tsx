@@ -17,23 +17,24 @@ const PickSubmission: React.FC = () => {
 
     const [currentChoices, setCurrentChoices] = useState<Array<string | number>>([]);
     const [loading, setLoading] = useState(true);
+    const [editsAllowed, setEditsAllowed] = useState(false);
 
     const [messageApi, contextHolder] = message.useMessage();
 
-    const { setCurrent, setToken } = useContext(AuthContext);
+    const { setCurrent, setToken, admin } = useContext(AuthContext);
 
-    const success = () => {
+    const success = (message: string) => {
         messageApi.open({
             type: 'success',
-            content: 'Saved successfully',
+            content: message,
             duration: 10,
         });
     };
 
-    const error = () => {
+    const error = (message: string) => {
         messageApi.open({
             type: 'error',
-            content: 'Data failed to save. Ensure you are logged in',
+            content: message,
             duration: 10,
         });
     };
@@ -56,8 +57,9 @@ const PickSubmission: React.FC = () => {
             await axios
                 .get("https://my-node-app-ua0d.onrender.com/api/information/getInfo")
                 .then((res) => res.data)
-                .then((data: { information: { options: Array<Pick> } }) => {
-                    setPickArray(data.information.options)
+                .then((data: { information: { options: Array<Pick>, editsAllowed: boolean } }) => {
+                    setPickArray(data.information.options);
+                    setEditsAllowed(data.information.editsAllowed);
                     setLoading(false);
                 })
                 .catch((err) => console.log(err));
@@ -78,8 +80,15 @@ const PickSubmission: React.FC = () => {
     const updateData = async () => {
         await axios
             .post("https://my-node-app-ua0d.onrender.com/api/information/submitResponse", { choices: currentChoices })
-            .then(success)
-            .catch(error);
+            .then(() => success('Saved successfully'))
+            .catch(() => error('Failed to save. Ensure you are logged in and that the editing period has not expired'));
+    }
+
+    const setCorrectAnswers = async () => {
+        await axios
+            .post("https://my-node-app-ua0d.onrender.com/api/admin/setCorrectAnswers", { correctAnswers: currentChoices })
+            .then(() => success('Saved as correct answers'))
+            .catch(() => error('Failed to save as correct answers. Ensure you are logged in and have proper permissions'));
     }
 
     return (
@@ -92,14 +101,14 @@ const PickSubmission: React.FC = () => {
                         return (
                             <div key={index}>
                                 <label>{element.question}</label>
-                                <input value={currentChoices?.[index]} onChange={(e) => handleChange(index, e.target.value)} />
+                                <input value={currentChoices?.[index]} onChange={(e) => handleChange(index, e.target.value)} disabled={!editsAllowed && !admin} />
                             </div>
                         );
                     } else if (element.type === "radio") {
                         return (
                             <div key={index}>
                                 <label>{element.question}</label>
-                                <select value={currentChoices?.[index]} onChange={(e) => handleChange(index, e.target.value)}>
+                                <select value={currentChoices?.[index]} onChange={(e) => handleChange(index, e.target.value)} disabled={!editsAllowed && !admin}>
                                     {element.options.map((option: string) => {
                                         return (
                                             <option value={option}>{option}</option>
@@ -110,7 +119,8 @@ const PickSubmission: React.FC = () => {
                         );
                     }
                 })}
-                <button onClick={() => updateData()}>Save</button>
+                <button onClick={() => updateData()} hidden={!editsAllowed}>Save</button>
+                { admin ? <button onClick={() => setCorrectAnswers()}>Save as Correct Answers</button> : <></> }
             </div>
         </>
 
