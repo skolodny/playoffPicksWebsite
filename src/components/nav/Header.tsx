@@ -1,5 +1,5 @@
 import React from 'react';
-import { HomeTwoTone, CheckCircleTwoTone } from '@ant-design/icons';
+import { HomeTwoTone, CheckCircleTwoTone, EditTwoTone } from '@ant-design/icons';
 import { Menu } from 'antd';
 import { useContext } from 'react';
 import { Outlet, Link } from 'react-router-dom';
@@ -18,7 +18,7 @@ const Header: React.FC = () => {
           <Link to="/">Home</Link>
         </Menu.Item>
         {token && (
-          <Menu.Item key="p" icon={<CheckCircleTwoTone />}>
+          <Menu.Item key="p" icon={<EditTwoTone />}>
             <Link to="/pickSubmission">Pick Submission</Link>
           </Menu.Item>
         )}
