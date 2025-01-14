@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react"
 import axios from "axios";
-import { Table, Spin } from "antd";
+import { Table, Spin, Select } from "antd";
+
+const { Option } = Select;
 
 const Home: React.FC = () => {
 
@@ -8,7 +10,7 @@ const Home: React.FC = () => {
   const [pickData, setPickData] = useState([]);
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const [selectedTable, setSelectedTable] = useState("leaderboard");
 
   useEffect(() => {
     const dataRes = async () =>
@@ -34,6 +36,10 @@ const Home: React.FC = () => {
     dataRes1();
   }, []);
 
+  const handleChange = (value: string) => {
+    setSelectedTable(value);
+  };
+
   const columns = [
     {
       title: 'Username',
@@ -54,12 +60,21 @@ const Home: React.FC = () => {
     </div> :
       <div>
         <h1 style={{ textAlign: "center" }}>Playoff Picks</h1>
-        <h2>Leaderboard</h2>
-        <Table columns={columns} dataSource={scoreData} />
-        <h2>Picks</h2>
-        <Table columns={questions} dataSource={pickData} />
+        <Select defaultValue="leaderboard" style={{ width: 200 }} onChange={handleChange}>
+          <Option value="leaderboard">Leaderboard</Option>
+          <Option value="picks">Picks</Option>
+        </Select>
+        {selectedTable === "leaderboard" ? (
+          <>
+            <Table columns={columns} dataSource={scoreData} />
+          </>
+        ) : (
+          <>
+            <Table columns={questions} dataSource={pickData} />
+          </>
+        )}
       </div>
   )
 }
-//        
+
 export default Home
