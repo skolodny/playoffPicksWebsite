@@ -1,9 +1,9 @@
 import React, { useContext, useState, useEffect } from "react";
 import axios from "axios";
-import "./login.css"; // Import the CSS file
 import { AuthContext } from "../../provider/authContext";
 import { Navigate } from "react-router-dom";
-import { Spin, message } from "antd";
+import { Input, Spin, message, Typography, Card } from "antd";
+import "./login.css"; // Import the CSS file
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState("");
@@ -11,6 +11,7 @@ const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const { token, setToken, setCurrent } = useContext(AuthContext);
   const [messageApi, contextHolder] = message.useMessage();
+  const{Title, Text} = Typography;
 
   useEffect(() => {
     setCurrent('l');
@@ -47,12 +48,13 @@ const Login: React.FC = () => {
               <Spin size="large" />
             </div> :
             <>
-              <div className="login-container">
-                <h2>Login</h2>
+            <div className="pick-submission-container">
+            <Card className="form-card" bordered={false}>
+                <Title style={{ textAlign: 'center'}} level={2}>Login</Title>
                 <form onSubmit={handleLogin}>
                   <div className="form-group">
-                    <label>Username:</label>
-                    <input
+                    <Text>Username:</Text>
+                    <Input
                       type="text"
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
@@ -60,15 +62,16 @@ const Login: React.FC = () => {
                     />
                   </div>
                   <div className="form-group">
-                    <label>Password:</label>
-                    <input
+                    <Text>Password:</Text>
+                    <Input
                       type="password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                     />
                   </div>
-                  <input type="submit" className="login-button" value="Submit" />
+                  <Input type="submit" className="login-button" value="Submit" />
                 </form>
+                </Card>
               </div>
             </>
           )}

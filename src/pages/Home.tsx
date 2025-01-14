@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react"
 import axios from "axios";
-import { Table, Spin, Select } from "antd";
+import { Table, Spin, Select, Typography } from "antd";
 
 const { Option } = Select;
 
@@ -11,6 +11,7 @@ const Home: React.FC = () => {
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedTable, setSelectedTable] = useState("leaderboard");
+  const { Title } = Typography;
 
   useEffect(() => {
     const dataRes = async () =>
@@ -59,7 +60,7 @@ const Home: React.FC = () => {
       <Spin size="large" />
     </div> :
       <div>
-        <h1 style={{ textAlign: "center" }}>Playoff Picks</h1>
+        <Title style={{ textAlign: "center" }} level={1}>Playoff Picks</Title>
         <Select defaultValue="leaderboard" style={{ width: 200 }} onChange={handleChange}>
           <Option value="leaderboard">Leaderboard</Option>
           <Option value="picks">Picks</Option>
