@@ -13,6 +13,7 @@ interface Field {
     question: string;
     type: string;
     options?: string[]; // For dropdown options
+    typeInfo?: string; // For additional type information (e.g., gamePick, typeInfo specifics)
 }
 
 export const CreateQuestions: React.FC = () => {
@@ -47,7 +48,7 @@ export const CreateQuestions: React.FC = () => {
     const addField = () => {
         setFields([
             ...fields,
-            { question: "", type: "text", options: [] },
+            { question: "", type: "text", options: [], typeInfo: "winner" },
         ]);
     };
 
@@ -59,7 +60,7 @@ export const CreateQuestions: React.FC = () => {
     ) => {
         setFields(
             fields.map((field, idx) =>
-                idx === index ? { ...field, [key]: value } : field
+                idx === index ? { ...field, typeInfo: (key === 'type' ? (value === 'playerPick' ? 'overUnder' : (value === 'gamePick' ? 'winner' : field.typeInfo)) : field.typeInfo), [key]: value } : field
             )
         );
     };
@@ -163,6 +164,7 @@ export const CreateQuestions: React.FC = () => {
                     <Space direction="vertical" size="large" style={{ width: "100%" }}>
                         {fields.map((field, index) => (
                             <div key={index} style={{ marginBottom: "10px" }}>
+                                {field.type !== 'gamePick' && field.type !== 'playerPick' && 
                                 <Input
                                     type="text"
                                     placeholder="Field Question"
@@ -171,6 +173,7 @@ export const CreateQuestions: React.FC = () => {
                                         updateField(index, "question", e.target.value)
                                     }
                                 />
+                                }
                                 <Select
                                     style={{ minWidth: "120px" }}
                                     value={field.type}
@@ -179,35 +182,61 @@ export const CreateQuestions: React.FC = () => {
                                     <option value="text">Text</option>
                                     <option value="number">Number</option>
                                     <option value="dropdown">Dropdown</option>
+                                    <option value="gamePick">Game Pick</option>
+                                    <option value="playerPick">Player Pick</option>
                                 </Select>
-                                <Button onClick={() => removeField(index)}>Remove</Button>
 
-                                {/* Dropdown options editor */}
-                                {field.type === "dropdown" && (
-                                    <div style={{ marginTop: "10px", paddingLeft: "20px" }}>
-                                        <Title level={5}>Dropdown Options</Title>
-                                        {field.options?.map((option, optIdx) => (
-                                            <div key={optIdx} style={{ display: "flex", alignItems: "center", marginBottom: "5px" }}>
-                                                <Input
-                                                    type="text"
-                                                    placeholder={`Option ${optIdx + 1}`}
-                                                    className="form-input"
-                                                    value={option}
-                                                    onChange={(e) =>
-                                                        updateOption(index, optIdx, e.target.value)
-                                                    }
-                                                />
-                                                <Button
-                                                    onClick={() => removeOption(index, optIdx)}
-                                                    style={{ marginLeft: "5px" }}
-                                                >
-                                                    Remove
-                                                </Button>
-                                            </div>
-                                        ))}
-                                        <Button onClick={() => addOption(index)}>Add Option</Button>
-                                    </div>
+                             
+                                {field.type === "gamePick" && (
+                                <Select
+                                    style={{ minWidth: "120px" }}
+                                    value={field.typeInfo}
+                                    onChange={(value) => updateField(index, "typeInfo", value)}
+                                >
+                                    <option value="winner">Winner</option>
+                                    <option value="overUnder">Over/Under</option>
+                                    <option value="gameEvent">Game Event</option>
+                                    <option value="playerComparison">Player Comparison</option>
+                                    <option value="teamComparison">Team Comparison</option>
+                                </Select>
                                 )}
+                                {field.type === "playerPick" && (
+                                <Select
+                                    style={{ minWidth: "120px" }}
+                                    value={field.typeInfo}
+                                    onChange={(value) => updateField(index, "typeInfo", value)}
+                                >
+                                    <option value="overUnder">Over/Under</option>
+                                    <option value="comparison">Compare Players</option>
+                                </Select>
+                                )}
+                            <Button onClick={() => removeField(index)}>Remove</Button>
+                            {/* Dropdown options editor */}
+                            {field.type === "dropdown" && (
+                                <div style={{ marginTop: "10px", paddingLeft: "20px" }}>
+                                    <Title level={5}>Dropdown Options</Title>
+                                    {field.options?.map((option, optIdx) => (
+                                        <div key={optIdx} style={{ display: "flex", alignItems: "center", marginBottom: "5px" }}>
+                                            <Input
+                                                type="text"
+                                                placeholder={`Option ${optIdx + 1}`}
+                                                className="form-input"
+                                                value={option}
+                                                onChange={(e) =>
+                                                    updateOption(index, optIdx, e.target.value)
+                                                }
+                                            />
+                                            <Button
+                                                onClick={() => removeOption(index, optIdx)}
+                                                style={{ marginLeft: "5px" }}
+                                            >
+                                                Remove
+                                            </Button>
+                                        </div>
+                                    ))}
+                                    <Button onClick={() => addOption(index)}>Add Option</Button>
+                                </div>
+                            )}
                             </div>
                         ))}
                     </Space>
