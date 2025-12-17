@@ -3,6 +3,7 @@ import axios from "axios";
 import { AuthContext } from "../../provider/authContext";
 import { Navigate } from "react-router-dom";
 import { Input, Spin, message, Typography, Card } from "antd";
+import API_BASE_URL from "../../config/api";
 import "./login.css"; // Import the CSS file
 
 const Login: React.FC = () => {
@@ -28,7 +29,7 @@ const Login: React.FC = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    await axios.post("https://my-node-app-ua0d.onrender.com/api/users/login", { username, password }).then((response) => {
+    await axios.post(`${API_BASE_URL}/api/users/login`, { username, password }).then((response) => {
       const { token, admin } = response.data;
       setToken(token, admin);
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;

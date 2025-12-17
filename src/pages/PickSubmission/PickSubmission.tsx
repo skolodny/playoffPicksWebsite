@@ -3,6 +3,7 @@ import axios from "axios";
 import { useState, useEffect, useContext } from "react";
 import { message, Spin, Button, Card as AntCard, Input, Select, Typography, Divider, Space, Row, Col } from "antd";
 import { AuthContext } from "../../provider/authContext";
+import API_BASE_URL from "../../config/api";
 import "./PickSubmission.css"
 
 const{Title, Text} = Typography;
@@ -46,7 +47,7 @@ const PickSubmission: React.FC = () => {
     useEffect(() => {
         const dataRes1 = async () =>
             await axios
-                .post("https://my-node-app-ua0d.onrender.com/api/information/findResponse")
+                .post(`${API_BASE_URL}/api/information/findResponse`)
                 .then((res) => res.data)
                 .then((data) => {
                     setCurrentChoices(data.response);
@@ -59,7 +60,7 @@ const PickSubmission: React.FC = () => {
         dataRes1();
         const dataRes = async () =>
             await axios
-                .get("https://my-node-app-ua0d.onrender.com/api/information/getInfo")
+                .get(`${API_BASE_URL}/api/information/getInfo`)
                 .then((res) => res.data)
                 .then((data: { information: { options: Array<Pick>, editsAllowed: boolean } }) => {
                     setPickArray(data.information.options);
@@ -83,21 +84,21 @@ const PickSubmission: React.FC = () => {
 
     const updateData = async () => {
         await axios
-            .post("https://my-node-app-ua0d.onrender.com/api/information/submitResponse", { choices: currentChoices })
+            .post(`${API_BASE_URL}/api/information/submitResponse`, { choices: currentChoices })
             .then(() => success('Saved successfully'))
             .catch(() => error('Failed to save. Ensure you are logged in and that the editing period has not expired'));
     }
 
     const setCorrectAnswers = async () => {
         await axios
-            .post("https://my-node-app-ua0d.onrender.com/api/admin/setCorrectAnswers", { correctAnswers: currentChoices })
+            .post(`${API_BASE_URL}/api/admin/setCorrectAnswers`, { correctAnswers: currentChoices })
             .then(() => success('Saved as correct answers'))
             .catch(() => error('Failed to save as correct answers. Ensure you are logged in and have proper permissions'));
     }
 
     const setEditStatus = async () => {
         await axios
-            .post("https://my-node-app-ua0d.onrender.com/api/admin/setEditStatus", { editsAllowed: !editsAllowed })
+            .post(`${API_BASE_URL}/api/admin/setEditStatus`, { editsAllowed: !editsAllowed })
             .then(() => 
                 {
                     success(editsAllowed ? 'Editing disabled' : 'Editing enabled');
@@ -108,7 +109,7 @@ const PickSubmission: React.FC = () => {
 
     const calculateScores = async () => {
         await axios
-            .post("https://my-node-app-ua0d.onrender.com/api/admin/calculateScores")
+            .post(`${API_BASE_URL}/api/admin/calculateScores`)
             .then(() => 
                 {
                     success('Scores calculated. Check the leaderboard to see the updated scores');

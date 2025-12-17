@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react"
 import axios from "axios";
 import { Table, Spin, Select, Typography } from "antd";
+import API_BASE_URL from "../config/api";
 
 const { Option } = Select;
 
@@ -16,7 +17,7 @@ const Home: React.FC = () => {
   useEffect(() => {
     const dataRes = async () =>
       await axios
-        .get("https://my-node-app-ua0d.onrender.com/api/users/getTotalUserScores")
+        .get(`${API_BASE_URL}/api/users/getTotalUserScores`)
         .then((res) => res.data)
         .then((data) => {
           setScoreData(data.userScores)
@@ -26,7 +27,7 @@ const Home: React.FC = () => {
     dataRes();
     const dataRes1 = async () =>
       await axios
-        .get("https://my-node-app-ua0d.onrender.com/api/information/getAllResponses")
+        .get(`${API_BASE_URL}/api/information/getAllResponses`)
         .then((res) => res.data)
         .then((data) => {
           setPickData(data.responses);
