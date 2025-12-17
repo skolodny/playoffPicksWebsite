@@ -2,6 +2,7 @@ import { Button, Input, Select, Typography, Col, Divider, Space, Card, Modal, me
 import React, { useState } from "react";
 import './CreateQuestions.css'
 import axios from "axios";
+import API_BASE_URL from "../../config/api";
 
 const { Option } = Select
 const { Title, Text } = Typography;
@@ -37,7 +38,7 @@ export const CreateQuestions: React.FC = () => {
 
     const submitNewQuestions = async () => {
         await axios
-            .post("https://my-node-app-ua0d.onrender.com/api/admin/createNewWeek", { options: fields })
+            .post(`${API_BASE_URL}/api/admin/createNewWeek`, { options: fields })
             .then(() => success('Questions saved successfully and new week started'))
             .catch(() => error('Failed to save. Ensure you are logged in and have proper permissions'));
     }

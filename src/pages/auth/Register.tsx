@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import API_BASE_URL from "../../config/api";
 import "./login.css"; // Import the CSS file
 
 const Registration: React.FC = () => {
@@ -9,7 +10,7 @@ const Registration: React.FC = () => {
   const handleRegistration = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.post("https://my-node-app-ua0d.onrender.com/api/users/register", { username, password });
+      const response = await axios.post(`${API_BASE_URL}/api/users/register`, { username, password });
       console.log("Registration successful:", response.data);
     } catch (error) {
       console.error("Registration failed:", error);

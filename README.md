@@ -2,6 +2,21 @@
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
+## Development Setup
+
+### Using a Local Development Server
+
+By default, the application connects to the production server at `https://my-node-app-ua0d.onrender.com`. To use a local development server instead (e.g., running on port 5000):
+
+1. Create a `.env` file in the root directory
+2. Add the following line:
+   ```
+   VITE_API_BASE_URL=http://localhost:5000
+   ```
+3. Restart the dev server with `npm run dev`
+
+The application will now connect to your local server at `http://localhost:5000` instead of the production server.
+
 Currently, two official plugins are available:
 
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
