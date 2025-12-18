@@ -8,18 +8,33 @@ const { Option } = Select
 const { Title, Text } = Typography;
 
 
+// Define the structure for a game
+interface Game {
+    id: string;
+    homeTeam: {
+        name: string;
+    };
+    awayTeam: {
+        name: string;
+    };
+}
+
 // Define the structure for a field
 interface Field {
     question: string;
     type: string;
     options?: string[]; // For dropdown options
     typeInfo?: string; // For additional type information (e.g., gamePick, typeInfo specifics)
+    gameId?: string; // For storing selected game ID
+    gameDisplay?: string; // For displaying selected game (homeTeam vs awayTeam)
 }
 
 export const CreateQuestions: React.FC = () => {
     const [fields, setFields] = useState<Field[]>([]);
     const [formData, setFormData] = useState<Record<string, string>>({});
     const [messageApi, contextHolder] = message.useMessage();
+    const [games, setGames] = useState<Game[]>([]);
+    const [loadingGames, setLoadingGames] = useState(false);
 
     const success = (message: string) => {
         messageApi.open({
@@ -44,12 +59,35 @@ export const CreateQuestions: React.FC = () => {
             .catch(() => error('Failed to save. Ensure you are logged in and have proper permissions'));
     }
 
+    // Fetch games for gamePick type
+    const fetchGames = async () => {
+        setLoadingGames(true);
+        try {
+            const response = await axios.get(`${API_BASE_URL}/api/admin/nfl/games?week=1&seasonType=3`);
+            if (response.data && response.data.games) {
+                setGames(response.data.games);
+            }
+        } catch {
+            error('Failed to fetch games');
+        } finally {
+            setLoadingGames(false);
+        }
+    };
+
     // Add a new field
     const addField = () => {
         setFields([
             ...fields,
             { question: "", type: "text", options: [], typeInfo: "winner" },
         ]);
+    };
+
+    // Handle type change and fetch games if needed
+    const handleTypeChange = (index: number, value: string) => {
+        updateField(index, "type", value);
+        if (value === "gamePick" && games.length === 0) {
+            fetchGames();
+        }
     };
 
     // Update a specific field
@@ -177,7 +215,7 @@ export const CreateQuestions: React.FC = () => {
                                 <Select
                                     style={{ minWidth: "120px" }}
                                     value={field.type}
-                                    onChange={(value) => updateField(index, "type", value)}
+                                    onChange={(value) => handleTypeChange(index, value)}
                                 >
                                     <option value="text">Text</option>
                                     <option value="number">Number</option>
@@ -186,6 +224,36 @@ export const CreateQuestions: React.FC = () => {
                                     <option value="playerPick">Player Pick</option>
                                 </Select>
 
+                                {/* Game Selection Dropdown */}
+                                {field.type === "gamePick" && (
+                                    <div style={{ marginTop: "10px" }}>
+                                        <Text>Select Game:</Text>
+                                        <Select
+                                            style={{ width: "100%", marginTop: "5px" }}
+                                            placeholder="Select a game"
+                                            value={field.gameId}
+                                            loading={loadingGames}
+                                            onChange={(value) => {
+                                                const selectedGame = games.find(g => g.id === value);
+                                                if (selectedGame) {
+                                                    updateField(index, "gameId", value);
+                                                    updateField(index, "gameDisplay", `${selectedGame.awayTeam.name} @ ${selectedGame.homeTeam.name}`);
+                                                }
+                                            }}
+                                        >
+                                            {games.map((game) => (
+                                                <Option key={game.id} value={game.id}>
+                                                    {game.awayTeam.name} @ {game.homeTeam.name}
+                                                </Option>
+                                            ))}
+                                        </Select>
+                                        {field.gameDisplay && (
+                                            <Text style={{ marginTop: "5px", display: "block" }}>
+                                                Selected: {field.gameDisplay}
+                                            </Text>
+                                        )}
+                                    </div>
+                                )}
                              
                                 {field.type === "gamePick" && (
                                 <Select
