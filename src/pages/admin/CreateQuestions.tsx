@@ -26,7 +26,9 @@ interface Field {
     options?: string[]; // For dropdown options
     typeInfo?: string; // For additional type information (e.g., gamePick, typeInfo specifics)
     gameId?: string; // For storing selected game ID
-    gameDisplay?: string; // For displaying selected game (homeTeam vs awayTeam)
+    overUnderValue?: number; // For storing over/under value if applicable
+    statistic?: string; // For playerPick statistic
+    apiConfig?: Object; // For playerPick API configuration
 }
 
 export const CreateQuestions: React.FC = () => {
@@ -63,7 +65,7 @@ export const CreateQuestions: React.FC = () => {
     const fetchGames = async () => {
         setLoadingGames(true);
         try {
-            const response = await axios.get(`${API_BASE_URL}/api/admin/nfl/games?week=1&seasonType=3`);
+            const response = await axios.get(`${API_BASE_URL}/api/admin/nfl/games?week=1`);
             if (response.data && response.data.games) {
                 setGames(response.data.games);
             }
@@ -94,7 +96,7 @@ export const CreateQuestions: React.FC = () => {
     const updateField = (
         index: number,
         key: keyof Field,
-        value: string | boolean | string[]
+        value: string | boolean | string[] | number
     ) => {
         setFields(
             fields.map((field, idx) =>
@@ -152,6 +154,49 @@ export const CreateQuestions: React.FC = () => {
         setFields(fields.filter((_, idx) => idx !== index));
     };
 
+    // Helper function to update question/options based on game and typeInfo
+    const updateQuestionForGame = (
+        typeInfo: string,
+        selectedGame: Game,
+        fieldExtras?: Partial<Field>
+    ): Partial<Field> => {
+        const updates: Partial<Field> = {};
+        const away = selectedGame.awayTeam.name;
+        const home = selectedGame.homeTeam.name;
+
+        switch (typeInfo) {
+            case 'winner':
+                updates.question = `Who will win: ${away} or ${home}?`;
+                updates.options = [away, home];
+                break;
+            case 'overUnder': {
+                const stat = fieldExtras?.statistic ? ` ${fieldExtras.statistic}` : '';
+                const value =
+                    typeof fieldExtras?.overUnderValue === 'number' && !isNaN(fieldExtras.overUnderValue)
+                        ? ` ${fieldExtras.overUnderValue}`
+                        : '';
+                updates.question = `Over/Under${value}${stat === ' score' ? ' Total Score' : stat} for ${away} @ ${home}?`;
+                updates.options = ['Over', 'Under'];
+                break;
+            }
+            case 'gameEvent':
+                updates.question = `Game event for ${away} @ ${home}?`;
+                updates.options = undefined;
+                break;
+            case 'playerComparison':
+                updates.question = `Player comparison in ${away} @ ${home}`;
+                updates.options = undefined;
+                break;
+            case 'teamComparison':
+                updates.question = `Which team will have more in ${away} @ ${home}?`;
+                updates.options = [away, home];
+                break;
+            default:
+                break;
+        }
+        return updates;
+    };
+
     // Render form preview
     const renderFormPreview = () => (
         <div className="pick-submission-container">
@@ -162,7 +207,7 @@ export const CreateQuestions: React.FC = () => {
                         <Text strong className="form-label">
                             {field.question || "Field"}{" "}
                         </Text>
-                        {field.type === "dropdown" ? (
+                        {field.type === "dropdown" || field.type === "gamePick" ? (
                             <Select
                                 onChange={(e) =>
                                     setFormData({ ...formData, [field.question]: e.target.value })
@@ -236,8 +281,16 @@ export const CreateQuestions: React.FC = () => {
                                             onChange={(value) => {
                                                 const selectedGame = games.find(g => g.id === value);
                                                 if (selectedGame) {
-                                                    updateField(index, "gameId", value);
-                                                    updateField(index, "gameDisplay", `${selectedGame.awayTeam.name} @ ${selectedGame.homeTeam.name}`);
+                                                    setFields(fields.map((f, idx) => {
+                                                        if (idx === index) {
+                                                            return {
+                                                                ...f,
+                                                                gameId: value,
+                                                                ...updateQuestionForGame(f.typeInfo || 'winner', selectedGame)
+                                                            };
+                                                        }
+                                                        return f;
+                                                    }));
                                                 }
                                             }}
                                         >
@@ -247,26 +300,35 @@ export const CreateQuestions: React.FC = () => {
                                                 </Option>
                                             ))}
                                         </Select>
-                                        {field.gameDisplay && (
-                                            <Text style={{ marginTop: "5px", display: "block" }}>
-                                                Selected: {field.gameDisplay}
-                                            </Text>
-                                        )}
                                     </div>
                                 )}
                              
                                 {field.type === "gamePick" && (
-                                <Select
-                                    style={{ minWidth: "120px" }}
-                                    value={field.typeInfo}
-                                    onChange={(value) => updateField(index, "typeInfo", value)}
-                                >
-                                    <option value="winner">Winner</option>
-                                    <option value="overUnder">Over/Under</option>
-                                    <option value="gameEvent">Game Event</option>
-                                    <option value="playerComparison">Player Comparison</option>
-                                    <option value="teamComparison">Team Comparison</option>
-                                </Select>
+                                <>
+                                    <Select
+                                        style={{ minWidth: "120px" }}
+                                        value={field.typeInfo}
+                                        onChange={(value) => {
+                                            const selectedGame = games.find(g => g.id === field.gameId);
+                                            setFields(fields.map((f, idx) => {
+                                                if (idx === index) {
+                                                    return {
+                                                        ...f,
+                                                        typeInfo: value,
+                                                        ...(selectedGame ? updateQuestionForGame(value, selectedGame) : {})
+                                                    };
+                                                }
+                                                return f;
+                                            }));
+                                        }}
+                                    >
+                                        <option value="winner">Winner</option>
+                                        <option value="overUnder">Over/Under</option>
+                                        <option value="gameEvent">Game Event</option>
+                                        <option value="playerComparison">Player Comparison</option>
+                                        <option value="teamComparison">Team Comparison</option>
+                                    </Select>
+                                </>
                                 )}
                                 {field.type === "playerPick" && (
                                 <Select
@@ -277,6 +339,58 @@ export const CreateQuestions: React.FC = () => {
                                     <option value="overUnder">Over/Under</option>
                                     <option value="comparison">Compare Players</option>
                                 </Select>
+                                )}
+                                {field.typeInfo === 'overUnder' && (
+                                <>
+                                    <Select
+                                        value={field.statistic}
+                                        onChange={(value) => {
+                                            const selectedGame = games.find(g => g.id === field.gameId);
+                                            setFields(fields.map((f, idx) => {
+                                                if (idx === index) {
+                                                    return {
+                                                        ...f,
+                                                        statistic: value,
+                                                        ...(selectedGame
+                                                            ? updateQuestionForGame(f.typeInfo || 'winner', selectedGame, {
+                                                                  statistic: value,
+                                                                  overUnderValue: f.overUnderValue
+                                                              })
+                                                            : {})
+                                                    };
+                                                }
+                                                return f;
+                                            }));
+                                        }}
+                                    >
+                                        <option value="score">Total Score</option>
+                                        {/* ...add more statistics as needed... */}
+                                    </Select>
+                                    <Input
+                                        value={field.overUnderValue}
+                                        type="number"
+                                        className="form-input"
+                                        onChange={(e) => {
+                                            const val = parseFloat(e.target.value);
+                                            const selectedGame = games.find(g => g.id === field.gameId);
+                                            setFields(fields.map((f, idx) => {
+                                                if (idx === index) {
+                                                    return {
+                                                        ...f,
+                                                        overUnderValue: val,
+                                                        ...(selectedGame
+                                                            ? updateQuestionForGame(f.typeInfo || 'winner', selectedGame, {
+                                                                  statistic: f.statistic,
+                                                                  overUnderValue: val
+                                                              })
+                                                            : {})
+                                                    };
+                                                }
+                                                return f;
+                                            }));
+                                        }}
+                                    />
+                                </>
                                 )}
                             <Button onClick={() => removeField(index)}>Remove</Button>
                             {/* Dropdown options editor */}
