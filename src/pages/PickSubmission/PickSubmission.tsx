@@ -13,6 +13,7 @@ export type Pick = {
     question: string;
     type: string;
     options: Array<string>;
+    typeInfo?: string;
 };
 
 const PickSubmission: React.FC = () => {
@@ -146,7 +147,7 @@ const PickSubmission: React.FC = () => {
                                         disabled={!editsAllowed && !admin}
                                         type={element.type}
                                     />
-                                ) : element.type === "dropdown" ? (
+                                ) : element.type === "dropdown" || element.typeInfo === 'winner' ? (
                                     <Select
                                         className="form-select"
                                         value={currentChoices[index]}
