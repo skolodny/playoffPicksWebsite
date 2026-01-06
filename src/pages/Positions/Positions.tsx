@@ -78,10 +78,22 @@ const Positions: React.FC = () => {
     };
 
     const handlePositionSelect = (position: string, playerId: string) => {
-        setLineup(prev => ({
-            ...prev,
-            [position]: playerId
-        }));
+        setLineup(prev => {
+            // Prevent selecting the same player in multiple positions
+            const isDuplicate = Object.entries(prev).some(
+                ([pos, id]) => pos !== position && id === playerId
+            );
+
+            if (isDuplicate) {
+                error("This player is already selected in another position.");
+                return prev;
+            }
+
+            return {
+                ...prev,
+                [position]: playerId
+            };
+        });
     };
 
     const handleSearchChange = (position: string, value: string) => {
