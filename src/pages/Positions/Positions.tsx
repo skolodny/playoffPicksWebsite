@@ -56,7 +56,7 @@ const Positions: React.FC = () => {
 
     useEffect(() => {
         setCurrent('pos');
-    }, []);
+    }, [setCurrent]);
 
     const fetchAvailablePlayers = async (position: string) => {
         setFetchingPlayers(true);
