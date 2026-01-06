@@ -63,7 +63,7 @@ const Positions: React.FC = () => {
         try {
             const response = await axios.get(`${API_BASE_URL}/api/fantasy/availablePlayers`, {
                 params: {
-                    Position: POSITION_TO_API_TYPE[position]
+                    position: POSITION_TO_API_TYPE[position]
                 }
             });
             setAvailablePlayers(prev => ({
