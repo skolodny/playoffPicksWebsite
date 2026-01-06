@@ -33,8 +33,6 @@ const Positions: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState<{ [key: string]: string }>({});
     const [fetchingPlayers, setFetchingPlayers] = useState(false);
     const [submitting, setSubmitting] = useState(false);
-    const [currentWeek, setCurrentWeek] = useState<number | null>(null);
-    const [loading, setLoading] = useState(true);
 
     const [messageApi, contextHolder] = message.useMessage();
 
@@ -58,20 +56,6 @@ const Positions: React.FC = () => {
 
     useEffect(() => {
         setCurrent('pos');
-        
-        // Fetch current week from server
-        const fetchCurrentWeek = async () => {
-            try {
-                const response = await axios.get(`${API_BASE_URL}/api/information/getInfo`);
-                setCurrentWeek(response.data.information.currentWeek);
-                setLoading(false);
-            } catch {
-                error('Failed to fetch current week');
-                setLoading(false);
-            }
-        };
-        
-        fetchCurrentWeek();
     }, []);
 
     const fetchAvailablePlayers = async (position: string) => {
@@ -79,8 +63,7 @@ const Positions: React.FC = () => {
         try {
             const response = await axios.get(`${API_BASE_URL}/api/fantasy/availablePlayers`, {
                 params: {
-                    Position: POSITION_TO_API_TYPE[position],
-                    weekNumber: currentWeek
+                    Position: POSITION_TO_API_TYPE[position]
                 }
             });
             setAvailablePlayers(prev => ({
@@ -128,7 +111,6 @@ const Positions: React.FC = () => {
         setSubmitting(true);
         try {
             await axios.post(`${API_BASE_URL}/api/fantasy/submitLineup`, {
-                weekNumber: currentWeek,
                 lineup: lineup
             });
             success('Lineup submitted successfully!');
@@ -139,7 +121,7 @@ const Positions: React.FC = () => {
         }
     };
 
-    return loading || fetchingPlayers ? (
+    return fetchingPlayers ? (
         <div className="spin-container">
             <Spin size="large" />
         </div>
@@ -149,7 +131,7 @@ const Positions: React.FC = () => {
             <div className="positions-container">
                 <AntCard className="form-card" bordered={false}>
                     <Title level={2} className="form-title">
-                        Fantasy Lineup - Week {currentWeek}
+                        Fantasy Lineup
                     </Title>
                     <Divider />
                     <Space direction="vertical" size="large" style={{ width: "100%" }}>
