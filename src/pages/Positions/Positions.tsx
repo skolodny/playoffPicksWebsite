@@ -33,7 +33,8 @@ const Positions: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState<{ [key: string]: string }>({});
     const [fetchingPlayers, setFetchingPlayers] = useState(false);
     const [submitting, setSubmitting] = useState(false);
-    const [currentWeek, setCurrentWeek] = useState(1);
+    const [currentWeek, setCurrentWeek] = useState<number | null>(null);
+    const [loading, setLoading] = useState(true);
 
     const [messageApi, contextHolder] = message.useMessage();
 
@@ -57,6 +58,20 @@ const Positions: React.FC = () => {
 
     useEffect(() => {
         setCurrent('pos');
+        
+        // Fetch current week from server
+        const fetchCurrentWeek = async () => {
+            try {
+                const response = await axios.get(`${API_BASE_URL}/api/fantasy/currentWeek`);
+                setCurrentWeek(response.data.weekNumber);
+                setLoading(false);
+            } catch {
+                error('Failed to fetch current week');
+                setLoading(false);
+            }
+        };
+        
+        fetchCurrentWeek();
     }, []);
 
     const fetchAvailablePlayers = async (position: string) => {
@@ -124,7 +139,7 @@ const Positions: React.FC = () => {
         }
     };
 
-    return fetchingPlayers ? (
+    return loading || fetchingPlayers ? (
         <div className="spin-container">
             <Spin size="large" />
         </div>
@@ -136,17 +151,6 @@ const Positions: React.FC = () => {
                     <Title level={2} className="form-title">
                         Fantasy Lineup - Week {currentWeek}
                     </Title>
-                    <Divider />
-                    <div style={{ marginBottom: '1rem' }}>
-                        <Text strong>Week Number: </Text>
-                        <Input
-                            type="number"
-                            value={currentWeek}
-                            onChange={(e) => setCurrentWeek(Number(e.target.value))}
-                            style={{ width: '100px', marginLeft: '0.5rem' }}
-                            min={1}
-                        />
-                    </div>
                     <Divider />
                     <Space direction="vertical" size="large" style={{ width: "100%" }}>
                         {POSITIONS.map((position) => (
