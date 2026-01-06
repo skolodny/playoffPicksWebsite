@@ -31,12 +31,12 @@ const Positions: React.FC = () => {
     const [lineup, setLineup] = useState<{ [key: string]: string }>({});
     const [availablePlayers, setAvailablePlayers] = useState<{ [key: string]: Player[] }>({});
     const [searchTerm, setSearchTerm] = useState<{ [key: string]: string }>({});
-    const [fetchingPlayers, setFetchingPlayers] = useState(false);
+    const [fetchingPlayers, setFetchingPlayers] = useState<{ [key: string]: boolean }>({});
     const [submitting, setSubmitting] = useState(false);
 
     const [messageApi, contextHolder] = message.useMessage();
 
-    const { setCurrent } = useContext(AuthContext);
+    const { setCurrent, admin } = useContext(AuthContext);
 
     const success = (msg: string) => {
         messageApi.open({
@@ -59,7 +59,7 @@ const Positions: React.FC = () => {
     }, [setCurrent]);
 
     const fetchAvailablePlayers = async (position: string) => {
-        setFetchingPlayers(true);
+        setFetchingPlayers(prev => ({ ...prev, [position]: true }));
         try {
             const response = await axios.get(`${API_BASE_URL}/api/fantasy/availablePlayers`, {
                 params: {
@@ -73,7 +73,7 @@ const Positions: React.FC = () => {
         } catch {
             error(`Failed to fetch players for ${position}`);
         } finally {
-            setFetchingPlayers(false);
+            setFetchingPlayers(prev => ({ ...prev, [position]: false }));
         }
     };
 
@@ -133,7 +133,18 @@ const Positions: React.FC = () => {
         }
     };
 
-    return fetchingPlayers ? (
+    const calculateFantasyScores = async () => {
+        try {
+            await axios.post(`${API_BASE_URL}/api/admin/fantasy/calculateScores`);
+            success('Fantasy scores calculated successfully!');
+        } catch {
+            error('Failed to calculate fantasy scores. Ensure you are logged in and have proper permissions');
+        }
+    };
+
+    const isAnyPositionLoading = Object.values(fetchingPlayers).some(loading => loading);
+
+    return isAnyPositionLoading ? (
         <div className="spin-container">
             <Spin size="large" />
         </div>
@@ -191,6 +202,13 @@ const Positions: React.FC = () => {
                                 Submit Lineup
                             </Button>
                         </Col>
+                        {admin && (
+                            <Col>
+                                <Button type="dashed" onClick={calculateFantasyScores}>
+                                    Calculate Fantasy Scores
+                                </Button>
+                            </Col>
+                        )}
                     </Row>
                 </AntCard>
             </div>
