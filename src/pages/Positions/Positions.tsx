@@ -31,7 +31,8 @@ const Positions: React.FC = () => {
     const [lineup, setLineup] = useState<{ [key: string]: string }>({});
     const [availablePlayers, setAvailablePlayers] = useState<{ [key: string]: Player[] }>({});
     const [searchTerm, setSearchTerm] = useState<{ [key: string]: string }>({});
-    const [loading, setLoading] = useState(false);
+    const [fetchingPlayers, setFetchingPlayers] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
     const [currentWeek, setCurrentWeek] = useState(1);
 
     const [messageApi, contextHolder] = message.useMessage();
@@ -59,7 +60,7 @@ const Positions: React.FC = () => {
     }, []);
 
     const fetchAvailablePlayers = async (position: string) => {
-        setLoading(true);
+        setFetchingPlayers(true);
         try {
             const response = await axios.get(`${API_BASE_URL}/api/fantasy/availablePlayers`, {
                 params: {
@@ -74,7 +75,7 @@ const Positions: React.FC = () => {
         } catch {
             error(`Failed to fetch players for ${position}`);
         } finally {
-            setLoading(false);
+            setFetchingPlayers(false);
         }
     };
 
@@ -109,7 +110,7 @@ const Positions: React.FC = () => {
             return;
         }
 
-        setLoading(true);
+        setSubmitting(true);
         try {
             await axios.post(`${API_BASE_URL}/api/fantasy/submitLineup`, {
                 weekNumber: currentWeek,
@@ -119,11 +120,11 @@ const Positions: React.FC = () => {
         } catch {
             error('Failed to submit lineup. Please ensure you are logged in.');
         } finally {
-            setLoading(false);
+            setSubmitting(false);
         }
     };
 
-    return loading ? (
+    return fetchingPlayers ? (
         <div className="spin-container">
             <Spin size="large" />
         </div>
@@ -169,9 +170,6 @@ const Positions: React.FC = () => {
                                         value={lineup[position]}
                                         onChange={(value) => handlePositionSelect(position, value)}
                                         placeholder={`Select ${position}`}
-                                        showSearch
-                                        optionFilterProp="children"
-                                        filterOption={false}
                                         onDropdownVisibleChange={(open) => {
                                             if (open && !availablePlayers[position]) {
                                                 fetchAvailablePlayers(position);
@@ -191,7 +189,7 @@ const Positions: React.FC = () => {
                     <Divider />
                     <Row gutter={16} justify="end">
                         <Col>
-                            <Button type="primary" onClick={submitLineup} loading={loading}>
+                            <Button type="primary" onClick={submitLineup} loading={submitting}>
                                 Submit Lineup
                             </Button>
                         </Col>
