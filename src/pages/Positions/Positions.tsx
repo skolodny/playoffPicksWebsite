@@ -62,8 +62,8 @@ const Positions: React.FC = () => {
         // Fetch current week from server
         const fetchCurrentWeek = async () => {
             try {
-                const response = await axios.get(`${API_BASE_URL}/api/fantasy/currentWeek`);
-                setCurrentWeek(response.data.weekNumber);
+                const response = await axios.get(`${API_BASE_URL}/api/information/getInfo`);
+                setCurrentWeek(response.data.information.currentWeek);
                 setLoading(false);
             } catch {
                 error('Failed to fetch current week');
