@@ -68,7 +68,7 @@ const Positions: React.FC = () => {
             });
             setAvailablePlayers(prev => ({
                 ...prev,
-                [position]: response.data.players || []
+                [position]: response.data.availablePlayers || []
             }));
         } catch {
             error(`Failed to fetch players for ${position}`);
