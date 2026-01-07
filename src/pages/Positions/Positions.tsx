@@ -191,7 +191,7 @@ const Positions: React.FC = () => {
                                     onChange={(value) => handlePositionSelect(position, value)}
                                     placeholder={`Search and select ${position}`}
                                     showSearch
-                                    disabled={!editsAllowed}
+                                    disabled={!editsAllowed && !admin}
                                     optionFilterProp="children"
                                     filterOption={(input, option) => {
                                         const label = option?.label || option?.children;
