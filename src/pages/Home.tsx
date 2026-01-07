@@ -39,10 +39,11 @@ const Home: React.FC = () => {
     dataRes1();
     const dataRes2 = async () =>
       await axios
-        .get(`${API_BASE_URL}/fantasy/leaderboard`)
+        .get(`${API_BASE_URL}/api/fantasy/leaderboard`)
         .then((res) => res.data)
         .then((data) => {
-          setFantasyData(data.lineup || []);
+          console.log(data)
+          setFantasyData(data.leaderboard || []);
           setLoading(false);
         })
         .catch((err) => console.log(err));
@@ -66,6 +67,58 @@ const Home: React.FC = () => {
     }
   ]
 
+  const fantasyColumns = [
+    {
+      title: 'Username',
+      dataIndex: 'username',
+      key: 'username',
+    },
+    {
+      title: 'Quarterback',
+      dataIndex: 'QB',
+      key: 'QB',
+    },
+    {
+      title: 'Running Back 1',
+      dataIndex: 'RB1',
+      key: 'RB1',
+    },
+    {
+      title: 'Running Back 2',
+      dataIndex: 'RB2',
+      key: 'RB2',
+    },
+    {
+      title: 'Wide Receiver 1',
+      dataIndex: 'WR1',
+      key: 'WR1',
+    },
+    {
+      title: 'Wide Receiver 2',
+      dataIndex: 'WR2',
+      key: 'WR2',
+    },
+    {
+      title: 'Tight End',
+      dataIndex: 'TE',
+      key: 'TE',
+    },
+    {
+      title: 'Flex',
+      dataIndex: 'FLEX',
+      key: 'FLEX',
+    },
+    {
+      title: 'Kicker',
+      dataIndex: 'PK',
+      key: 'PK',
+    },
+    {
+      title: 'Defense',
+      dataIndex: 'DEF',
+      key: 'DEF',
+    }]
+
   return (
     loading ? 
     <div className="spin-container">
@@ -88,7 +141,7 @@ const Home: React.FC = () => {
           </>
         ) : (
           <>
-            <Table dataSource={fantasyData} scroll={{ x: true }} />
+            <Table columns={fantasyColumns} dataSource={fantasyData} />
           </>
         )}
       </div>
