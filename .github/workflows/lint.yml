@@ -21,11 +21,10 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
 
-    - name: Change to client directory
-      run: cd client
-
     - name: Clean install of dependencies
       run: npm ci
+      working-directory: ./client
 
     - name: Lint
       run: npm run lint
+      working-directory: ./client

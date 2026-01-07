@@ -20,12 +20,11 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-
-    - name: Change to client directory
-      run: cd client
  
     - name: Clean install of dependencies
       run: npm ci
+      working-directory: ./client
 
     - name: Build
       run: npm run build
+      working-directory: ./client

@@ -16,9 +16,6 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Change to client directory
-      run: cd client
-
     - name: Set up Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v1
       with:
@@ -26,6 +23,7 @@ jobs:
 
     - name: Clean install of dependencies
       run: npm ci
+      working-directory: ./client
 
     - name: Deploy
       run: |
@@ -38,3 +36,4 @@ jobs:
         user_email: 'github-actions[bot]@users.noreply.github.com'
         github_token: ${{ secrets.ACTIONS_DEPLOY_ACCESS_TOKEN }}
         repository: ${{ github.repository }}
+      working-directory: ./client
