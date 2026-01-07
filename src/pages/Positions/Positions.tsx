@@ -1,6 +1,5 @@
-import React from "react";
+import React, { useCallback, useState, useEffect, useContext } from "react";
 import axios from "axios";
-import { useState, useEffect, useContext } from "react";
 import { message, Spin, Button, Card as AntCard, Select, Typography, Divider, Space, Row, Col } from "antd";
 import { AuthContext } from "../../provider/authContext";
 import API_BASE_URL from "../../config/api";
@@ -21,6 +20,7 @@ const Positions: React.FC = () => {
     const [availablePlayers, setAvailablePlayers] = useState<{ [key: string]: Player[] }>({});
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
+    const [editsAllowed, setEditsAllowed] = useState(false);
 
     const [messageApi, contextHolder] = message.useMessage();
 
@@ -34,64 +34,81 @@ const Positions: React.FC = () => {
         });
     };
 
-    const error = (msg: string) => {
+    const error = useCallback((msg: string) => {
         messageApi.open({
             type: 'error',
             content: msg,
             duration: 10,
         });
-    };
+    }, [messageApi]);
 
     useEffect(() => {
         setCurrent('pos');
-        loadData();
-    }, [setCurrent]);
-
-    const loadData = async () => {
-        setLoading(true);
-        try {
-            // Fetch all available players at once
-            const playersResponse = await axios.get(`${API_BASE_URL}/api/fantasy/availablePlayers`, {
-                params: { position: 'ALL' }
-            });
-            
-            const allPlayers = playersResponse.data.availablePlayers;
-            
-            // Set available players for each position
-            const players: { [key: string]: Player[] } = {};
-            
-            // Individual positions
-            players['QB'] = allPlayers.QB || [];
-            players['RB1'] = allPlayers.RB || [];
-            players['RB2'] = allPlayers.RB || [];
-            players['WR1'] = allPlayers.WR || [];
-            players['WR2'] = allPlayers.WR || [];
-            players['TE'] = allPlayers.TE || [];
-            players['FLEX'] = allPlayers.FLEX || [];
-            players['PK'] = allPlayers.PK || [];
-            players['DEF'] = allPlayers.DEF || [];
-            
-            setAvailablePlayers(players);
-            
-            // Try to fetch existing lineup
+        const loadData = async () => {
             try {
-                const lineupResponse = await axios.get(`${API_BASE_URL}/api/fantasy/lineup`);
-                if (lineupResponse.data && lineupResponse.data.lineup?.lineup) {
-                    setLineup(lineupResponse.data.lineup.lineup);
+                // Fetch all available players at once
+                const playersResponse = await axios.get(`${API_BASE_URL}/api/fantasy/availablePlayers`, {
+                    params: { position: 'ALL' }
+                });
+                
+                const allPlayers = playersResponse.data.availablePlayers;
+                
+                // Set available players for each position
+                const players: { [key: string]: Player[] } = {};
+                
+                // Individual positions
+                players['QB'] = allPlayers.QB || [];
+                players['RB1'] = allPlayers.RB || [];
+                players['RB2'] = allPlayers.RB || [];
+                players['WR1'] = allPlayers.WR || [];
+                players['WR2'] = allPlayers.WR || [];
+                players['TE'] = allPlayers.TE || [];
+                players['FLEX'] = allPlayers.FLEX || [];
+                players['PK'] = allPlayers.PK || [];
+                players['DEF'] = allPlayers.DEF || [];
+                
+                setAvailablePlayers(players);
+                
+                // Try to fetch existing lineup
+                try {
+                    const lineupResponse = await axios.get(`${API_BASE_URL}/api/fantasy/lineup`);
+                    if (lineupResponse.data && lineupResponse.data.lineup?.lineup) {
+                        setLineup(lineupResponse.data.lineup.lineup);
+                    }
+                } catch (err: unknown) {
+                    // 404 means user hasn't submitted a lineup yet, which is fine
+                    if (axios.isAxiosError(err) && err.response?.status !== 404) {
+                        console.error('Error fetching lineup:', err);
+                    }
                 }
-            } catch (err: unknown) {
-                // 404 means user hasn't submitted a lineup yet, which is fine
-                if (axios.isAxiosError(err) && err.response?.status !== 404) {
-                    console.error('Error fetching lineup:', err);
-                }
+            } catch (err) {
+                error('Failed to load player data');
+                console.error('Error loading data:', err);
             }
-        } catch (err) {
-            error('Failed to load player data');
-            console.error('Error loading data:', err);
-        } finally {
-            setLoading(false);
-        }
-    };
+        };
+
+        const fetchEditsAllowed = async () => {
+            try {
+                const res = await axios.get(`${API_BASE_URL}/api/information/getInfo`);
+                setEditsAllowed(res.data.information.editsAllowed);
+            } catch (err) {
+                console.error('Error fetching edits allowed:', err);
+                error('Unable to verify whether lineup edits are currently allowed. Editing may be temporarily disabled.');
+            }
+        };
+
+        const initializeData = async () => {
+            setLoading(true);
+            try {
+                await Promise.all([loadData(), fetchEditsAllowed()]);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        initializeData();
+    }, [setCurrent, error]);
+
 
     const handlePositionSelect = (position: string, playerValue: string) => {
         // playerValue is now the player name
@@ -141,8 +158,12 @@ const Positions: React.FC = () => {
         try {
             await axios.post(`${API_BASE_URL}/api/admin/fantasy/calculateScores`);
             success('Fantasy scores calculated successfully!');
-        } catch {
-            error('Failed to calculate fantasy scores. Ensure you are logged in and have proper permissions');
+        } catch (err) {
+            console.error('Error calculating fantasy scores:', err);
+            const errorMessage = axios.isAxiosError(err) && err.response?.data?.message
+                ? err.response.data.message
+                : 'Failed to calculate fantasy scores. Ensure you are logged in and have proper permissions';
+            error(errorMessage);
         }
     };
 
@@ -171,6 +192,7 @@ const Positions: React.FC = () => {
                                     onChange={(value) => handlePositionSelect(position, value)}
                                     placeholder={`Search and select ${position}`}
                                     showSearch
+                                    disabled={!editsAllowed && !admin}
                                     optionFilterProp="children"
                                     filterOption={(input, option) => {
                                         const label = option?.label || option?.children;
@@ -192,7 +214,7 @@ const Positions: React.FC = () => {
                     <Divider />
                     <Row gutter={16} justify="end">
                         <Col>
-                            <Button type="primary" onClick={submitLineup} loading={submitting}>
+                            <Button type="primary" onClick={submitLineup} loading={submitting} disabled={!editsAllowed && !admin}>
                                 Submit Lineup
                             </Button>
                         </Col>
