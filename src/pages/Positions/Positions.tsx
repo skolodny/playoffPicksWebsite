@@ -157,8 +157,12 @@ const Positions: React.FC = () => {
         try {
             await axios.post(`${API_BASE_URL}/api/admin/fantasy/calculateScores`);
             success('Fantasy scores calculated successfully!');
-        } catch {
-            error('Failed to calculate fantasy scores. Ensure you are logged in and have proper permissions');
+        } catch (err) {
+            console.error('Error calculating fantasy scores:', err);
+            const errorMessage = axios.isAxiosError(err) && err.response?.data?.message
+                ? err.response.data.message
+                : 'Failed to calculate fantasy scores. Ensure you are logged in and have proper permissions';
+            error(errorMessage);
         }
     };
 
