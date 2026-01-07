@@ -1,11 +1,11 @@
-name: Deploy
+name: ClientDeploy
 
 on:
   push:
     branches: [ master ]
 
 jobs:
-  deploy:
+  client-deploy:
     runs-on: ubuntu-latest
 
     strategy:

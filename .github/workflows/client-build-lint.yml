@@ -1,11 +1,11 @@
-name: Build
+name: Client Build & Lint
 
 on:
   pull_request:
     branches: [ master ]
 
 jobs:
-  build:
+  client-build-lint:
     runs-on: ubuntu-latest
 
     strategy:
@@ -23,6 +23,10 @@ jobs:
  
     - name: Clean install of dependencies
       run: npm ci
+      working-directory: ./client
+
+    - name: Lint
+      run: npm run lint
       working-directory: ./client
 
     - name: Build
