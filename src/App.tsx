@@ -3,6 +3,7 @@ import Home from './pages/Home';
 import Login from './pages/auth/Login';
 import Header from './components/nav/Header';
 import PickSubmission from './pages/PickSubmission/PickSubmission';
+import Positions from './pages/Positions/Positions';
 import { ProtectedRoute } from './routes/ProtectedRoute';
 import AuthProvider from './provider/authProvider';
 import { AdminProtectedRoute } from './routes/AdminProtectedRoute';
@@ -15,6 +16,7 @@ const router = createHashRouter(
       <Route path="/login" element={<Login />} />
       <Route element={<ProtectedRoute />}>
         <Route path="/pickSubmission" element={<PickSubmission />} />
+        <Route path="/positions" element={<Positions />} />
       </Route>
       <Route element={<AdminProtectedRoute />}>
         <Route path="/createQuestions" element={<CreateQuestions />} />
