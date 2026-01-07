@@ -24,7 +24,7 @@ const Positions: React.FC = () => {
 
     const [messageApi, contextHolder] = message.useMessage();
 
-    const { setCurrent, admin } = useContext(AuthContext);
+    const { setCurrent, setToken, admin } = useContext(AuthContext);
 
     const success = (msg: string) => {
         messageApi.open({
@@ -84,6 +84,8 @@ const Positions: React.FC = () => {
             } catch (err) {
                 error('Failed to load player data');
                 console.error('Error loading data:', err);
+                setCurrent('l');
+                setToken(null, false);
             }
         };
 
@@ -107,7 +109,7 @@ const Positions: React.FC = () => {
         };
 
         initializeData();
-    }, [setCurrent, error]);
+    }, [setCurrent, setToken, error]);
 
 
     const handlePositionSelect = (position: string, playerValue: string) => {

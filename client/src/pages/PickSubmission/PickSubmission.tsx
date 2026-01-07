@@ -69,11 +69,11 @@ const PickSubmission: React.FC = () => {
                 })
                 .catch((err) => console.log(err));
         dataRes();
-    }, []);
+    }, [setCurrent, setToken]);
 
     useEffect(() => {
         setCurrent('p');
-    }, []);
+    }, [setCurrent]);
 
     const handleChange = (index: number, value: number | string) => {
         // Create a copy of the array to avoid mutating state directly
