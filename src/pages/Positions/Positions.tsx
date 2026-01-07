@@ -1,7 +1,7 @@
 import React from "react";
 import axios from "axios";
 import { useState, useEffect, useContext } from "react";
-import { message, Spin, Button, Card as AntCard, Input, Select, Typography, Divider, Space, Row, Col } from "antd";
+import { message, Spin, Button, Card as AntCard, Select, Typography, Divider, Space, Row, Col } from "antd";
 import { AuthContext } from "../../provider/authContext";
 import API_BASE_URL from "../../config/api";
 import "./Positions.css";
@@ -30,7 +30,6 @@ const POSITION_TO_API_TYPE: { [key: string]: string } = {
 const Positions: React.FC = () => {
     const [lineup, setLineup] = useState<{ [key: string]: string }>({});
     const [availablePlayers, setAvailablePlayers] = useState<{ [key: string]: Player[] }>({});
-    const [searchTerm, setSearchTerm] = useState<{ [key: string]: string }>({});
     const [fetchingPlayers, setFetchingPlayers] = useState<{ [key: string]: boolean }>({});
     const [submitting, setSubmitting] = useState(false);
 
@@ -96,22 +95,6 @@ const Positions: React.FC = () => {
         });
     };
 
-    const handleSearchChange = (position: string, value: string) => {
-        setSearchTerm(prev => ({
-            ...prev,
-            [position]: value
-        }));
-    };
-
-    const getFilteredPlayers = (position: string): Player[] => {
-        const players = availablePlayers[position] || [];
-        const search = searchTerm[position] || '';
-        if (!search) return players;
-        return players.filter(player => 
-            player.name.toLowerCase().includes(search.toLowerCase())
-        );
-    };
-
     const submitLineup = async () => {
         // Check if all positions are filled
         const missingPositions = POSITIONS.filter(pos => !lineup[pos]);
@@ -163,35 +146,33 @@ const Positions: React.FC = () => {
                                 <Text strong className="form-label">
                                     {position}
                                 </Text>
-                                <Space direction="vertical" style={{ width: "100%" }}>
-                                    <Input
-                                        placeholder={`Search ${position} players...`}
-                                        value={searchTerm[position] || ''}
-                                        onChange={(e) => handleSearchChange(position, e.target.value)}
-                                        onFocus={() => {
-                                            if (!availablePlayers[position]) {
-                                                fetchAvailablePlayers(position);
-                                            }
-                                        }}
-                                    />
-                                    <Select
-                                        className="form-select"
-                                        value={lineup[position]}
-                                        onChange={(value) => handlePositionSelect(position, value)}
-                                        placeholder={`Select ${position}`}
-                                        onDropdownVisibleChange={(open) => {
-                                            if (open && !availablePlayers[position]) {
-                                                fetchAvailablePlayers(position);
-                                            }
-                                        }}
-                                    >
-                                        {getFilteredPlayers(position).map((player) => (
-                                            <Option key={player.id} value={player.id}>
-                                                {player.name}
-                                            </Option>
-                                        ))}
-                                    </Select>
-                                </Space>
+                                <Select
+                                    className="form-select"
+                                    value={lineup[position]}
+                                    onChange={(value) => handlePositionSelect(position, value)}
+                                    placeholder={`Search and select ${position}`}
+                                    showSearch
+                                    optionFilterProp="children"
+                                    filterOption={(input, option) => {
+                                        const label = option?.label || option?.children;
+                                        if (typeof label === 'string') {
+                                            return label.toLowerCase().includes(input.toLowerCase());
+                                        }
+                                        return false;
+                                    }}
+                                    onDropdownVisibleChange={(open) => {
+                                        if (open && !availablePlayers[position]) {
+                                            fetchAvailablePlayers(position);
+                                        }
+                                    }}
+                                    loading={fetchingPlayers[position]}
+                                >
+                                    {(availablePlayers[position] || []).map((player) => (
+                                        <Option key={player.id} value={player.id}>
+                                            {player.name}
+                                        </Option>
+                                    ))}
+                                </Select>
                             </div>
                         ))}
                     </Space>
