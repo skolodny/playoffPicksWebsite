@@ -9,6 +9,7 @@ const Home: React.FC = () => {
 
   const [scoreData, setScoreData] = useState([]);
   const [pickData, setPickData] = useState([]);
+  const [fantasyData, setFantasyData] = useState([]);
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedTable, setSelectedTable] = useState("leaderboard");
@@ -36,6 +37,16 @@ const Home: React.FC = () => {
         })
         .catch((err) => console.log(err));
     dataRes1();
+    const dataRes2 = async () =>
+      await axios
+        .get(`${API_BASE_URL}/fantasy/leaderboard`)
+        .then((res) => res.data)
+        .then((data) => {
+          setFantasyData(data.lineup || []);
+          setLoading(false);
+        })
+        .catch((err) => console.log(err));
+    dataRes2();
   }, []);
 
   const handleChange = (value: string) => {
@@ -65,14 +76,19 @@ const Home: React.FC = () => {
         <Select defaultValue="leaderboard" style={{ width: 200 }} onChange={handleChange}>
           <Option value="leaderboard">Leaderboard</Option>
           <Option value="picks">Picks</Option>
+          <Option value="fantasy">Fantasy</Option>
         </Select>
         {selectedTable === "leaderboard" ? (
           <>
             <Table columns={columns} dataSource={scoreData} />
           </>
-        ) : (
+        ) : selectedTable === "picks" ? (
           <>
             <Table columns={questions} dataSource={pickData} />
+          </>
+        ) : (
+          <>
+            <Table dataSource={fantasyData} scroll={{ x: true }} />
           </>
         )}
       </div>
