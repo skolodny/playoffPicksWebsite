@@ -45,7 +45,6 @@ const Home: React.FC = () => {
         .get(`${API_BASE_URL}/api/fantasy/leaderboard`)
         .then((res) => res.data)
         .then((data) => {
-          console.log(data)
           setFantasyData(data.leaderboard || []);
           setLoading(false);
         })
