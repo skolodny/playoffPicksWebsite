@@ -93,6 +93,7 @@ const Positions: React.FC = () => {
                 setEditsAllowed(res.data.information.editsAllowed);
             } catch (err) {
                 console.error('Error fetching edits allowed:', err);
+                error('Unable to verify whether lineup edits are currently allowed. Editing may be temporarily disabled.');
             }
         };
 
