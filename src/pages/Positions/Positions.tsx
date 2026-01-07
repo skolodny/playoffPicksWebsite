@@ -92,7 +92,7 @@ const Positions: React.FC = () => {
                 const res = await axios.get(`${API_BASE_URL}/api/information/getInfo`);
                 setEditsAllowed(res.data.information.editsAllowed);
             } catch (err) {
-                console.error(err);
+                console.error('Error fetching edits allowed:', err);
             }
         };
 
