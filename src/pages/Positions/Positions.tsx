@@ -180,6 +180,7 @@ const Positions: React.FC = () => {
                                     onChange={(value) => handlePositionSelect(position, value)}
                                     placeholder={`Search and select ${position}`}
                                     showSearch
+                                    disabled={!editsAllowed}
                                     optionFilterProp="children"
                                     filterOption={(input, option) => {
                                         const label = option?.label || option?.children;
@@ -201,7 +202,7 @@ const Positions: React.FC = () => {
                     <Divider />
                     <Row gutter={16} justify="end">
                         <Col>
-                            <Button type="primary" onClick={submitLineup} loading={submitting}>
+                            <Button type="primary" onClick={submitLineup} loading={submitting} disabled={!editsAllowed}>
                                 Submit Lineup
                             </Button>
                         </Col>
