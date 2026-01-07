@@ -75,7 +75,7 @@ const Positions: React.FC = () => {
             
             // Try to fetch existing lineup
             try {
-                const lineupResponse = await axios.get(`${API_BASE_URL}/fantasy/lineup`);
+                const lineupResponse = await axios.get(`${API_BASE_URL}/api/fantasy/lineup`);
                 if (lineupResponse.data && lineupResponse.data.lineup) {
                     setLineup(lineupResponse.data.lineup);
                 }
