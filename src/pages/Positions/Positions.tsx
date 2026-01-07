@@ -221,11 +221,14 @@ const Positions: React.FC = () => {
         setSubmitting(true);
         try {
             await axios.post(`${API_BASE_URL}/api/fantasy/submitLineup`, {
-                lineup: lineup
+            lineup: lineup
             });
             success('Lineup submitted successfully!');
-        } catch {
-            error('Failed to submit lineup. Please ensure you are logged in.');
+        } catch (err) {
+            const errorMessage = axios.isAxiosError(err) && err.response?.data?.message
+            ? err.response.data.message
+            : 'Failed to submit lineup. Please ensure you are logged in.';
+            error(errorMessage);
         } finally {
             setSubmitting(false);
         }
