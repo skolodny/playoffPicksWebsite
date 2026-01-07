@@ -98,8 +98,11 @@ const Positions: React.FC = () => {
 
         const initializeData = async () => {
             setLoading(true);
-            await Promise.all([loadData(), fetchEditsAllowed()]);
-            setLoading(false);
+            try {
+                await Promise.all([loadData(), fetchEditsAllowed()]);
+            } finally {
+                setLoading(false);
+            }
         };
 
         initializeData();
