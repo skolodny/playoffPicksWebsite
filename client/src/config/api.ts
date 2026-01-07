@@ -7,6 +7,6 @@
  * 3. Restart the dev server
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://my-node-app-ua0d.onrender.com';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://playoffpickswebsite.onrender.com';
 
 export default API_BASE_URL;
