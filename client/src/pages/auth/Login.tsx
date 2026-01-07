@@ -16,7 +16,7 @@ const Login: React.FC = () => {
 
   useEffect(() => {
     setCurrent('l');
-  }, []);
+  }, [setCurrent]);
 
   const error = () => {
     messageApi.open({

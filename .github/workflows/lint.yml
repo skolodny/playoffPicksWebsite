@@ -23,6 +23,8 @@ jobs:
 
     - name: Clean install of dependencies
       run: npm ci
+      working-directory: ./client
 
     - name: Lint
       run: npm run lint
+      working-directory: ./client
