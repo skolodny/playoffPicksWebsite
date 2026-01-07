@@ -45,6 +45,7 @@ const PickSubmission: React.FC = () => {
     };
 
     useEffect(() => {
+        setCurrent('p');
         const dataRes1 = async () =>
             await axios
                 .post(`${API_BASE_URL}/api/information/findResponse`)
@@ -70,10 +71,6 @@ const PickSubmission: React.FC = () => {
                 .catch((err) => console.log(err));
         dataRes();
     }, [setCurrent, setToken]);
-
-    useEffect(() => {
-        setCurrent('p');
-    }, [setCurrent]);
 
     const handleChange = (index: number, value: number | string) => {
         // Create a copy of the array to avoid mutating state directly
