@@ -1,8 +1,9 @@
 import { Button, Input, Select, Typography, Col, Divider, Space, Card, Modal, message } from "antd";
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import './CreateQuestions.css'
 import axios from "axios";
 import API_BASE_URL from "../../config/api";
+import { AuthContext } from "../../provider/authContext";
 
 const { Option } = Select
 const { Title, Text } = Typography;
@@ -19,6 +20,11 @@ export const CreateQuestions: React.FC = () => {
     const [fields, setFields] = useState<Field[]>([]);
     const [formData, setFormData] = useState<Record<string, string>>({});
     const [messageApi, contextHolder] = message.useMessage();
+    const { setCurrent } = useContext(AuthContext);
+
+    useEffect(() => {
+        setCurrent('a');
+    }, [setCurrent]);
 
     const success = (message: string) => {
         messageApi.open({

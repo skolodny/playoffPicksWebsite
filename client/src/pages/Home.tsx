@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useContext } from "react"
 import axios from "axios";
 import { Table, Spin, Select, Typography } from "antd";
 import API_BASE_URL from "../config/api";
+import { AuthContext } from "../provider/authContext";
 
 const { Option } = Select;
 
@@ -13,9 +14,11 @@ const Home: React.FC = () => {
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedTable, setSelectedTable] = useState("leaderboard");
+  const { setCurrent } = useContext(AuthContext);
   const { Title } = Typography;
 
   useEffect(() => {
+    setCurrent('h');
     const dataRes = async () =>
       await axios
         .get(`${API_BASE_URL}/api/users/getTotalUserScores`)
@@ -48,7 +51,7 @@ const Home: React.FC = () => {
         })
         .catch((err) => console.log(err));
     dataRes2();
-  }, []);
+  }, [setCurrent]);
 
   const handleChange = (value: string) => {
     setSelectedTable(value);
