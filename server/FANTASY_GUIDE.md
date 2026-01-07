@@ -158,7 +158,7 @@ Content-Type: application/json
     "WR2": "4035687",     // Ja'Marr Chase (must be different from WR1)
     "TE": "3116593",      // Travis Kelce
     "FLEX": "2576414",    // Davante Adams (can be any RB/WR/TE not already used)
-    "K": "2969939",       // Justin Tucker
+    "PK": "2969939",       // Justin Tucker
     "DEF": "12"           // Kansas City Chiefs defense (team ID)
   }
 }
@@ -180,7 +180,7 @@ Content-Type: application/json
       "WR2": "4035687",
       "TE": "3116593",
       "FLEX": "2576414",
-      "K": "2969939",
+      "PK": "2969939",
       "DEF": "12"
     },
     "totalPoints": 0,
@@ -216,7 +216,7 @@ If you already submitted a lineup for this week and are updating it:
   - `WR2` - Wide Receiver 2
   - `TE` - Tight End
   - `FLEX` - Flexible position (RB/WR/TE)
-  - `K` - Kicker
+  - `PK` - Kicker
   - `DEF` - Defense (team ID)
 
 **Validation Rules:**
@@ -274,7 +274,7 @@ const qbs = await getAvailablePlayers(userId, 'QB');
 const rbs = await getAvailablePlayers(userId, 'RB');
 const wrs = await getAvailablePlayers(userId, 'WR');
 const tes = await getAvailablePlayers(userId, 'TE');
-const ks = await getAvailablePlayers(userId, 'K');
+const ks = await getAvailablePlayers(userId, 'PK');
 const defs = await getAvailablePlayers(userId, 'DEF');
 
 // User selects their players (this would be done via UI)
@@ -286,7 +286,7 @@ const selectedLineup = {
   WR2: wrs.availablePlayers[1].id,     // Second available WR
   TE: tes.availablePlayers[0].id,      // First available TE
   FLEX: wrs.availablePlayers[2].id,    // Third WR as flex
-  K: ks.availablePlayers[0].id,        // First available K
+  PK: ks.availablePlayers[0].id,        // First available K
   DEF: defs.availablePlayers[0].id     // First available DEF
 };
 
@@ -399,7 +399,7 @@ POST /api/fantasy/submitLineup
     "WR2": "4035687",
     "TE": "3116593",
     "FLEX": "2576414",
-    "K": "2969939",
+    "PK": "2969939",
     "DEF": "12"
   }
 }
@@ -459,7 +459,7 @@ POST /api/admin/fantasy/calculateScores
         "WR2": { "playerId": "4035687", "points": 18.3 },
         "TE": { "playerId": "3116593", "points": 14.7 },
         "FLEX": { "playerId": "2576414", "points": 22.1 },
-        "K": { "playerId": "2969939", "points": 8.0 },
+        "PK": { "playerId": "2969939", "points": 8.0 },
         "DEF": { "playerId": "12", "points": 0.0 }
       }
     }
@@ -587,7 +587,7 @@ POST /api/fantasy/submitLineup
     "WR2": "4035687",     // Ja'Marr Chase
     "TE": "3116593",      // Travis Kelce
     "FLEX": "2576414",    // Austin Ekeler
-    "K": "2969939",       // Justin Tucker
+    "PK": "2969939",       // Justin Tucker
     "DEF": "12"           // Kansas City Defense
   }
 }

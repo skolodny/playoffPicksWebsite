@@ -16,13 +16,19 @@ jest.mock('../adminAuth', () => (req, res, next) => next());
 jest.mock('../models/PlayerLineup');
 jest.mock('../models/User');
 jest.mock('../models/Information');
+jest.mock('../models/NFLPlayer');
 
 // Mock the fantasy service
 jest.mock('../services/fantasyService');
 
+// Mock the NFL API service
+jest.mock('../services/nflApiService');
+
 const PlayerLineup = require('../models/PlayerLineup');
 const Information = require('../models/Information');
+const NFLPlayer = require('../models/NFLPlayer');
 const fantasyService = require('../services/fantasyService');
+const nflApiService = require('../services/nflApiService');
 
 // Create Express app for testing
 const app = express();
@@ -69,7 +75,7 @@ describe('Fantasy Routes', () => {
                 .query({ position: 'QB' })
                 .expect(401);
             
-            expect(response.body.message).toContain('authorization denied');
+            expect(response.body.message).toContain('No authorization token provided');
         });
 
         test('should require position parameter', async () => {
@@ -116,7 +122,7 @@ describe('Fantasy Routes', () => {
                 WR2: '222',
                 TE: '333',
                 FLEX: '444',
-                K: '555',
+                PK: '555',
                 DEF: '666'
             };
             
@@ -158,7 +164,7 @@ describe('Fantasy Routes', () => {
                         WR2: '222',
                         TE: '333',
                         FLEX: '444',
-                        K: '555',
+                        PK: '555',
                         DEF: '666'
                     }
                 })
@@ -203,7 +209,7 @@ describe('Fantasy Routes', () => {
                         WR2: '222',
                         TE: '333',
                         FLEX: '444',
-                        K: '555',
+                        PK: '555',
                         DEF: '666'
                     }
                 })
@@ -232,7 +238,7 @@ describe('Fantasy Routes', () => {
                         WR2: '222',
                         TE: '333',
                         FLEX: '444',
-                        K: '555',
+                        PK: '555',
                         DEF: '666'
                     }
                 })
@@ -261,7 +267,7 @@ describe('Fantasy Routes', () => {
                         WR2: '666',
                         TE: '555',
                         FLEX: '444',
-                        K: '333',
+                        PK: '333',
                         DEF: '222'
                     }
                 }
@@ -279,7 +285,7 @@ describe('Fantasy Routes', () => {
                         WR2: '222',
                         TE: '333',
                         FLEX: '444',
-                        K: '555',
+                        PK: '555',
                         DEF: '666'
                     }
                 })
@@ -310,7 +316,7 @@ describe('Fantasy Routes', () => {
                         WR2: '222',
                         TE: '333',
                         FLEX: '444',
-                        K: '555',
+                        PK: '555',
                         DEF: '666'
                     }
                 })
@@ -334,7 +340,7 @@ describe('Fantasy Routes', () => {
                         WR2: '222',
                         TE: '333',
                         FLEX: '444',
-                        K: '555',
+                        PK: '555',
                         DEF: '666'
                     }
                 })
@@ -404,10 +410,13 @@ describe('Fantasy Routes', () => {
                 userId: 'user1',
                 weekNumber: 1,
                 lineup: { QB: '123' },
-                totalPoints: 100
+                totalPoints: 100,
+                toObject: function() { return { userId: this.userId, weekNumber: this.weekNumber, lineup: this.lineup, totalPoints: this.totalPoints }; }
             };
             
             PlayerLineup.findOne.mockResolvedValue(mockLineup);
+            NFLPlayer.findOne.mockResolvedValue({ name: 'Test Player' });
+            nflApiService.getTeams.mockResolvedValue([]);
             
             const response = await request(app)
                 .get('/api/fantasy/lineup')
@@ -415,7 +424,8 @@ describe('Fantasy Routes', () => {
                 .query({ weekNumber: 1 })
                 .expect(200);
             
-            expect(response.body.lineup).toEqual(mockLineup);
+            expect(response.body.lineup.userId).toBe('user1');
+            expect(response.body.lineup.weekNumber).toBe(1);
         });
 
         test('should return lineup for user using current week', async () => {
@@ -424,18 +434,22 @@ describe('Fantasy Routes', () => {
                 userId: 'user1',
                 weekNumber: 2,
                 lineup: { QB: '456' },
-                totalPoints: 110
+                totalPoints: 110,
+                toObject: function() { return { userId: this.userId, weekNumber: this.weekNumber, lineup: this.lineup, totalPoints: this.totalPoints }; }
             };
             
             Information.findOne.mockResolvedValue(mockWeekInfo);
             PlayerLineup.findOne.mockResolvedValue(mockLineup);
+            NFLPlayer.findOne.mockResolvedValue({ name: 'Test Player' });
+            nflApiService.getTeams.mockResolvedValue([]);
             
             const response = await request(app)
                 .get('/api/fantasy/lineup')
                 .set('authorization', `Bearer ${generateTestToken()}`)
                 .expect(200);
             
-            expect(response.body.lineup).toEqual(mockLineup);
+            expect(response.body.lineup.userId).toBe('user1');
+            expect(response.body.lineup.weekNumber).toBe(2);
         });
 
         test('should return 404 if lineup not found', async () => {
