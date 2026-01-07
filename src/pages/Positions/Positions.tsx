@@ -45,7 +45,6 @@ const Positions: React.FC = () => {
     useEffect(() => {
         setCurrent('pos');
         const loadData = async () => {
-            setLoading(true);
             try {
                 // Fetch all available players at once
                 const playersResponse = await axios.get(`${API_BASE_URL}/api/fantasy/availablePlayers`, {
@@ -87,17 +86,23 @@ const Positions: React.FC = () => {
                 console.error('Error loading data:', err);
             }
         };
-        loadData();
-        const dataRes = async () =>
-            await axios
-                .get(`${API_BASE_URL}/api/information/getInfo`)
-                .then((res) => res.data)
-                .then((data: { information: { editsAllowed: boolean } }) => {
-                    setEditsAllowed(data.information.editsAllowed);
-                    setLoading(false);
-                })
-                .catch((err) => console.log(err));
-        dataRes();
+
+        const fetchEditsAllowed = async () => {
+            try {
+                const res = await axios.get(`${API_BASE_URL}/api/information/getInfo`);
+                setEditsAllowed(res.data.information.editsAllowed);
+            } catch (err) {
+                console.log(err);
+            }
+        };
+
+        const initializeData = async () => {
+            setLoading(true);
+            await Promise.all([loadData(), fetchEditsAllowed()]);
+            setLoading(false);
+        };
+
+        initializeData();
     }, [setCurrent, error]);
 
 
