@@ -213,7 +213,7 @@ const Positions: React.FC = () => {
                     <Divider />
                     <Row gutter={16} justify="end">
                         <Col>
-                            <Button type="primary" onClick={submitLineup} loading={submitting} disabled={!editsAllowed}>
+                            <Button type="primary" onClick={submitLineup} loading={submitting} disabled={!editsAllowed && !admin}>
                                 Submit Lineup
                             </Button>
                         </Col>
