@@ -76,8 +76,9 @@ const Positions: React.FC = () => {
             // Try to fetch existing lineup
             try {
                 const lineupResponse = await axios.get(`${API_BASE_URL}/api/fantasy/lineup`);
-                if (lineupResponse.data && lineupResponse.data.lineup) {
-                    setLineup(lineupResponse.data.lineup);
+                console.log(lineupResponse.data.lineup);
+                if (lineupResponse.data && lineupResponse.data.lineup?.lineup) {
+                    setLineup(lineupResponse.data.lineup.lineup);
                 }
             } catch (err: unknown) {
                 // 404 means user hasn't submitted a lineup yet, which is fine
