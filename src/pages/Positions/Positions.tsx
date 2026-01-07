@@ -14,7 +14,7 @@ type Player = {
     name: string;
 };
 
-const POSITIONS = ['QB', 'RB1', 'RB2', 'WR1', 'WR2', 'TE', 'FLEX', 'K', 'DEF'];
+const POSITIONS = ['QB', 'RB1', 'RB2', 'WR1', 'WR2', 'TE', 'FLEX', 'PK', 'DEF'];
 const POSITION_TO_API_TYPE: { [key: string]: string } = {
     'QB': 'QB',
     'RB1': 'RB',
@@ -23,7 +23,7 @@ const POSITION_TO_API_TYPE: { [key: string]: string } = {
     'WR2': 'WR',
     'TE': 'TE',
     'FLEX': 'FLEX',
-    'K': 'K',
+    'PK': 'PK',
     'DEF': 'DEF'
 };
 
