@@ -94,11 +94,12 @@ const Positions: React.FC = () => {
         }
     };
 
-    const handlePositionSelect = (position: string, playerId: string) => {
+    const handlePositionSelect = (position: string, playerValue: string) => {
+        // playerValue is now the player name
         setLineup(prev => {
             // Prevent selecting the same player in multiple positions
             const isDuplicate = Object.entries(prev).some(
-                ([pos, id]) => pos !== position && id === playerId
+                ([pos, name]) => pos !== position && name === playerValue
             );
 
             if (isDuplicate) {
@@ -108,7 +109,7 @@ const Positions: React.FC = () => {
 
             return {
                 ...prev,
-                [position]: playerId
+                [position]: playerValue
             };
         });
     };
@@ -181,7 +182,7 @@ const Positions: React.FC = () => {
                                     }}
                                 >
                                     {(availablePlayers[position] || []).map((player) => (
-                                        <Option key={player.id} value={player.id}>
+                                        <Option key={player.id} value={player.name}>
                                             {player.name}
                                         </Option>
                                     ))}
