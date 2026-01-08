@@ -165,9 +165,6 @@ const GlobalProvider = ({ children }: { children: ReactNode }) => {
       userLineup,
       publicDataLoading,
       authDataLoading,
-      setUserResponses,
-      setUserLineup,
-      setEditsAllowed,
       setAuthDataFetched,
     ]
   );
