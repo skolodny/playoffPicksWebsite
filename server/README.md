@@ -171,17 +171,17 @@ Calculates scores for the current week. Automatically attempts to fetch results 
 
 #### Get Available Players by Position
 ```
-GET /api/fantasy/availablePlayers?userId={userId}&position={position}&weekNumber={week}
+GET /api/fantasy/availablePlayers?position={position}
 ```
 Returns players available for selection based on position, excluding players the user has already selected in previous weeks.
 
-**Positions**: QB, RB, WR, TE, K, DEF, FLEX
+**Positions**: QB, RB, WR, TE, PK, DEF, FLEX
 
 #### Submit Fantasy Lineup
 ```
 POST /api/fantasy/submitLineup
 ```
-Submit or update a fantasy lineup for a specific week. Requires all positions: QB, RB1, RB2, WR1, WR2, TE, FLEX, K, DEF.
+Submit or update a fantasy lineup for a specific week. Requires all positions: QB, RB1, RB2, WR1, WR2, TE, FLEX, PK, DEF.
 
 **Note:** The API accepts and stores **player names** (not player IDs) in lineup submissions.
 
@@ -193,7 +193,7 @@ Calculate PPR (Points Per Reception) fantasy scores for all submitted lineups fo
 
 #### Get Fantasy Lineup
 ```
-GET /api/fantasy/lineup?userId={userId}[&weekNumber={week}]
+GET /api/fantasy/lineup?[weekNumber={week}]
 ```
 Retrieve a user's lineup for a specific week or current week (if weekNumber not provided).
 
