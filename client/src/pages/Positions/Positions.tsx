@@ -25,7 +25,7 @@ const Positions: React.FC = () => {
         publicDataLoading
     } = useContext(GlobalContext);
 
-    const [lineup, setLineup] = useState<{ [key: string]: string }>(globalUserLineup);
+    const [lineup, setLineup] = useState<{ [key: string]: string }>(publicDataLoading ? {} : globalUserLineup);
     const [editsAllowed, setEditsAllowed] = useState(globalEditsAllowed);
     const [loading, setLoading] = useState(true);
 
@@ -163,12 +163,13 @@ const Positions: React.FC = () => {
                     </Space>
                     <Divider />
                     <Row gutter={16} justify="end">
-                        {editsAllowed &&
-                        <Col>
-                            <Button type="primary" onClick={submitLineup} loading={submitting}>
-                                Submit Lineup
-                            </Button>
-                        </Col>}
+                        {editsAllowed && (
+                            <Col>
+                                <Button type="primary" onClick={submitLineup} loading={submitting}>
+                                    Submit Lineup
+                                </Button>
+                            </Col>
+                        )}
                         {admin && (
                             <Col>
                                 <Button type="dashed" onClick={calculateFantasyScores}>
