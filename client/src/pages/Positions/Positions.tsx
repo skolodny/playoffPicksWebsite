@@ -2,29 +2,33 @@ import React, { useCallback, useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { message, Spin, Button, Card as AntCard, Select, Typography, Divider, Space, Row, Col } from "antd";
 import { AuthContext } from "../../provider/authContext";
+import { GlobalContext } from "../../provider/globalContext";
 import API_BASE_URL from "../../config/api";
 import "./Positions.css";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
 
-type Player = {
-    id: string;
-    name: string;
-};
-
 const POSITIONS = ['QB', 'RB1', 'RB2', 'WR1', 'WR2', 'TE', 'FLEX', 'PK', 'DEF'];
 
 const Positions: React.FC = () => {
-    const [lineup, setLineup] = useState<{ [key: string]: string }>({});
-    const [availablePlayers, setAvailablePlayers] = useState<{ [key: string]: Player[] }>({});
-    const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
-    const [editsAllowed, setEditsAllowed] = useState(false);
 
     const [messageApi, contextHolder] = message.useMessage();
 
-    const { setCurrent, setToken, admin } = useContext(AuthContext);
+    const { setCurrent, admin } = useContext(AuthContext);
+    const { 
+        availablePlayers: globalAvailablePlayers, 
+        userLineup: globalUserLineup,
+        editsAllowed: globalEditsAllowed,
+        setUserLineup: setGlobalUserLineup,
+        authDataLoading,
+        publicDataLoading
+    } = useContext(GlobalContext);
+
+    const [lineup, setLineup] = useState<{ [key: string]: string }>(globalUserLineup);
+    const [editsAllowed, setEditsAllowed] = useState(globalEditsAllowed);
+    const [loading, setLoading] = useState(true);
 
     const success = (msg: string) => {
         messageApi.open({
@@ -44,72 +48,16 @@ const Positions: React.FC = () => {
 
     useEffect(() => {
         setCurrent('pos');
-        const loadData = async () => {
-            try {
-                // Fetch all available players at once
-                const playersResponse = await axios.get(`${API_BASE_URL}/api/fantasy/availablePlayers`, {
-                    params: { position: 'ALL' }
-                });
-                
-                const allPlayers = playersResponse.data.availablePlayers;
-                
-                // Set available players for each position
-                const players: { [key: string]: Player[] } = {};
-                
-                // Individual positions
-                players['QB'] = allPlayers.QB || [];
-                players['RB1'] = allPlayers.RB || [];
-                players['RB2'] = allPlayers.RB || [];
-                players['WR1'] = allPlayers.WR || [];
-                players['WR2'] = allPlayers.WR || [];
-                players['TE'] = allPlayers.TE || [];
-                players['FLEX'] = allPlayers.FLEX || [];
-                players['PK'] = allPlayers.PK || [];
-                players['DEF'] = allPlayers.DEF || [];
-                
-                setAvailablePlayers(players);
-                
-                // Try to fetch existing lineup
-                try {
-                    const lineupResponse = await axios.get(`${API_BASE_URL}/api/fantasy/lineup`);
-                    if (lineupResponse.data && lineupResponse.data.lineup?.lineup) {
-                        setLineup(lineupResponse.data.lineup.lineup);
-                    }
-                } catch (err: unknown) {
-                    // 404 means user hasn't submitted a lineup yet, which is fine
-                    if (axios.isAxiosError(err) && err.response?.status !== 404) {
-                        console.error('Error fetching lineup:', err);
-                    }
-                }
-            } catch (err) {
-                error('Failed to load player data');
-                console.error('Error loading data:', err);
-                setCurrent('l');
-                setToken(null, false);
-            }
-        };
-
-        const fetchEditsAllowed = async () => {
-            try {
-                const res = await axios.get(`${API_BASE_URL}/api/information/getInfo`);
-                setEditsAllowed(res.data.information.editsAllowed);
-            } catch (err) {
-                console.error('Error fetching edits allowed:', err);
-                error('Unable to verify whether lineup edits are currently allowed. Editing may be temporarily disabled.');
-            }
-        };
-
-        const initializeData = async () => {
-            setLoading(true);
-            try {
-                await Promise.all([loadData(), fetchEditsAllowed()]);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        initializeData();
-    }, [setCurrent, setToken, error]);
+        
+        // Update local state when global state changes
+        setLineup(globalUserLineup);
+        setEditsAllowed(globalEditsAllowed);
+        
+        // Wait for both public and auth data to load
+        if (!publicDataLoading && !authDataLoading) {
+            setLoading(false);
+        }
+    }, [setCurrent, globalUserLineup, globalEditsAllowed, publicDataLoading, authDataLoading]);
 
 
     const handlePositionSelect = (position: string, playerValue: string) => {
@@ -146,6 +94,7 @@ const Positions: React.FC = () => {
             lineup: lineup
             });
             success('Lineup submitted successfully!');
+            setGlobalUserLineup(lineup);
         } catch (err) {
             const errorMessage = axios.isAxiosError(err) && err.response?.data?.message
             ? err.response.data.message
@@ -204,7 +153,7 @@ const Positions: React.FC = () => {
                                         return false;
                                     }}
                                 >
-                                    {(availablePlayers[position] || []).map((player) => (
+                                    {(globalAvailablePlayers[position] || []).map((player) => (
                                         <Option key={player.id} value={player.name}>
                                             {player.name}
                                         </Option>

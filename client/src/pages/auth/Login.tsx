@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect } from "react";
 import axios from "axios";
 import { AuthContext } from "../../provider/authContext";
+import { GlobalContext } from "../../provider/globalContext";
 import { Navigate } from "react-router-dom";
 import { Input, Spin, message, Typography, Card } from "antd";
 import API_BASE_URL from "../../config/api";
@@ -11,6 +12,7 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const { token, setToken, setCurrent } = useContext(AuthContext);
+  const { fetchAuthData } = useContext(GlobalContext);
   const [messageApi, contextHolder] = message.useMessage();
   const{Title, Text} = Typography;
 
@@ -33,6 +35,8 @@ const Login: React.FC = () => {
       const { token, admin } = response.data;
       setToken(token, admin);
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      // Fetch authenticated data once user logs in
+      fetchAuthData();
     }).catch(() => {
       setLoading(false);
       error();
