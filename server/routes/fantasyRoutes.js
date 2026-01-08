@@ -113,9 +113,10 @@ router.get('/fantasy/availablePlayers', extractUserFromToken, async (req, res) =
 /**
  * Submit a fantasy lineup for the current week
  * Automatically uses the current week from the database
+ * Accepts player names (not IDs) in the lineup
  * 
  * Body:
- * - lineup: Object with positions (QB, RB1, RB2, WR1, WR2, TE, FLEX, K, DEF) (required)
+ * - lineup: Object with positions (QB, RB1, RB2, WR1, WR2, TE, FLEX, K, DEF) and player names (required)
  * 
  * Headers:
  * - authorization: Bearer token or token
@@ -162,10 +163,10 @@ router.post('/fantasy/submitLineup', extractUserFromToken, async (req, res) => {
         }
         
         // Validate no duplicate players in lineup using Set size comparison
-        const playerIds = Object.values(lineup);
-        const uniquePlayerIds = new Set(playerIds);
+        const playerNames = Object.values(lineup);
+        const uniquePlayerNames = new Set(playerNames);
 
-        if (uniquePlayerIds.size !== playerIds.length) {
+        if (uniquePlayerNames.size !== playerNames.length) {
             return res.status(400).json({
                 message: 'Duplicate players in lineup detected. Each player can only be selected once per week.'
             });
@@ -177,14 +178,14 @@ router.post('/fantasy/submitLineup', extractUserFromToken, async (req, res) => {
             weekNumber: { $lt: weekNumber }
         });
         
-        const usedPlayerIds = new Set();
+        const usedPlayerNames = new Set();
         previousLineups.forEach(prevLineup => {
-            Object.values(prevLineup.lineup).forEach(playerId => {
-                usedPlayerIds.add(playerId);
+            Object.values(prevLineup.lineup).forEach(playerName => {
+                usedPlayerNames.add(playerName);
             });
         });
         
-        const reusedPlayers = playerIds.filter(playerId => usedPlayerIds.has(playerId));
+        const reusedPlayers = playerNames.filter(playerName => usedPlayerNames.has(playerName));
         
         if (reusedPlayers.length > 0) {
             return res.status(400).json({ 
@@ -288,7 +289,7 @@ router.post('/admin/fantasy/calculateScores', adminAuth, async (req, res) => {
 /**
  * Get fantasy lineup for the authenticated user
  * Automatically uses the current week from the database
- * Returns player names instead of IDs by querying the NFLPlayer collection
+ * Already returns player names (stored directly in the lineup)
  * 
  * Query params:
  * - weekNumber: Week number (optional, defaults to current week)
@@ -325,36 +326,9 @@ router.get('/fantasy/lineup', extractUserFromToken, async (req, res) => {
             });
         }
         
-        // Convert player IDs to names by querying NFLPlayer collection
-        const lineupWithNames = {};
-        const positions = ['QB', 'RB1', 'RB2', 'WR1', 'WR2', 'TE', 'FLEX', 'PK', 'DEF'];
-        
-        for (const position of positions) {
-            const playerId = lineup.lineup[position];
-            
-            // For DEF, try to get team name from ESPN (since it's a team defense)
-            if (position === 'DEF') {
-                try {
-                    const nflApiService = require('../services/nflApiService');
-                    const teams = await nflApiService.getTeams();
-                    const team = teams.find(t => t.id === playerId);
-                    lineupWithNames[position] = team ? team.name + ' Defense' : playerId; // Fallback to ID if not found
-                } catch (err) {
-                    console.error('Error fetching DEF team name:', err);
-                    lineupWithNames[position] = playerId; // Fallback to ID
-                }
-            } else {
-                // For regular players, query MongoDB
-                const player = await NFLPlayer.findOne({ espn_id: playerId });
-                lineupWithNames[position] = player ? player.name : playerId; // Fallback to ID if not found
-            }
-        }
-        
+        // Lineup already contains player names, return as-is
         res.status(200).json({ 
-            lineup: {
-                ...lineup.toObject(),
-                lineup: lineupWithNames
-            }
+            lineup: lineup.toObject()
         });
     } catch (error) {
         console.error('Error fetching lineup:', error);
@@ -412,6 +386,7 @@ router.get('/fantasy/leaderboard', async (req, res) => {
 
 /**
  * Get user's previously selected players across all weeks
+ * Returns player names (not IDs) since that's what's stored in the lineup
  * 
  * Headers:
  * - authorization: Bearer token or token
@@ -428,8 +403,8 @@ router.get('/fantasy/playerHistory', extractUserFromToken, async (req, res) => {
         const historyByWeek = {};
         
         lineups.forEach(lineup => {
-            Object.values(lineup.lineup).forEach(playerId => {
-                usedPlayers.add(playerId);
+            Object.values(lineup.lineup).forEach(playerName => {
+                usedPlayers.add(playerName);
             });
             
             historyByWeek[lineup.weekNumber] = lineup.lineup;

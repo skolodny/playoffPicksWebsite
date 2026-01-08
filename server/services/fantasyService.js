@@ -344,6 +344,7 @@ function calculatePPRPoints(stats, category) {
 
 /**
  * Calculate total lineup PPR points for a week
+ * Handles player names instead of IDs by looking up IDs from the NFLPlayer collection
  * @param {string} userId - User ID
  * @param {number} weekNumber - Week number
  * @returns {Promise<Object>} Total points and breakdown
@@ -370,10 +371,46 @@ async function calculateLineupPPR(userId, weekNumber) {
         let totalPoints = 0;
         const playerPoints = {};
         
-        // Initialize all player points to 0
-        for (const [position, playerId] of Object.entries(lineup.lineup)) {
+        // Convert player names to IDs for lookup
+        const playerNameToIdMap = {};
+        
+        // For each position, lookup the ESPN ID from the player name
+        for (const [position, playerName] of Object.entries(lineup.lineup)) {
+            // Handle DEF position separately - it's a team name
+            if (position === 'DEF') {
+                // Extract team name from defense name (e.g., "Kansas City Chiefs Defense" -> "Kansas City Chiefs")
+                const teamName = playerName.replace(' Defense', '').trim();
+                
+                // Get team ID from ESPN API
+                try {
+                    const teamsResponse = await axios.get(`${ESPN_API_BASE}/teams`);
+                    const teams = teamsResponse.data.sports[0].leagues[0].teams;
+                    const team = teams.find(t => t.team.displayName === teamName || t.team.name === teamName);
+                    
+                    if (team) {
+                        playerNameToIdMap[playerName] = team.team.id;
+                    } else {
+                        console.warn(`Team not found for defense: ${playerName}`);
+                        playerNameToIdMap[playerName] = null;
+                    }
+                } catch (err) {
+                    console.error(`Error fetching team for ${playerName}:`, err.message);
+                    playerNameToIdMap[playerName] = null;
+                }
+            } else {
+                // Regular player - lookup ESPN ID from MongoDB
+                const player = await NFLPlayer.findOne({ name: playerName });
+                if (player) {
+                    playerNameToIdMap[playerName] = player.espn_id;
+                } else {
+                    console.warn(`Player not found in database: ${playerName}`);
+                    playerNameToIdMap[playerName] = null;
+                }
+            }
+            
             playerPoints[position] = {
-                playerId,
+                playerName,
+                playerId: playerNameToIdMap[playerName],
                 points: 0
             };
         }
@@ -391,7 +428,13 @@ async function calculateLineupPPR(userId, weekNumber) {
             }
             
             // Calculate points for each player in the lineup that played in this game
-            for (const [position, playerId] of Object.entries(lineup.lineup)) {
+            for (const [position, playerInfo] of Object.entries(playerPoints)) {
+                const playerId = playerInfo.playerId;
+                
+                if (!playerId) {
+                    continue; // Skip if we couldn't find the player ID
+                }
+                
                 const playerStats = gameStats.playerStats[playerId];
                 if (playerStats) {
                     playerPoints[position].points += playerStats.points;
