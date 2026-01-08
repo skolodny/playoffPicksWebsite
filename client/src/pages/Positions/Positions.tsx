@@ -44,11 +44,14 @@ const Positions: React.FC = () => {
 
     useEffect(() => {
         setCurrent('pos');
+        const abortController = new AbortController();
+        
         const loadData = async () => {
             try {
                 // Fetch all available players at once
                 const playersResponse = await axios.get(`${API_BASE_URL}/api/fantasy/availablePlayers`, {
-                    params: { position: 'ALL' }
+                    params: { position: 'ALL' },
+                    signal: abortController.signal
                 });
                 
                 const allPlayers = playersResponse.data.availablePlayers;
@@ -71,17 +74,28 @@ const Positions: React.FC = () => {
                 
                 // Try to fetch existing lineup
                 try {
-                    const lineupResponse = await axios.get(`${API_BASE_URL}/api/fantasy/lineup`);
+                    const lineupResponse = await axios.get(`${API_BASE_URL}/api/fantasy/lineup`, {
+                        signal: abortController.signal
+                    });
                     if (lineupResponse.data && lineupResponse.data.lineup?.lineup) {
                         setLineup(lineupResponse.data.lineup.lineup);
                     }
                 } catch (err: unknown) {
                     // 404 means user hasn't submitted a lineup yet, which is fine
-                    if (axios.isAxiosError(err) && err.response?.status !== 404) {
-                        console.error('Error fetching lineup:', err);
+                    if (axios.isAxiosError(err)) {
+                        if (err.code === 'ERR_CANCELED') {
+                            return; // Request was cancelled
+                        }
+                        if (err.response?.status !== 404) {
+                            console.error('Error fetching lineup:', err);
+                        }
                     }
                 }
             } catch (err) {
+                if (axios.isAxiosError(err) && err.code === 'ERR_CANCELED') {
+                    // Request was cancelled, no need to handle
+                    return;
+                }
                 error('Failed to load player data');
                 console.error('Error loading data:', err);
                 setCurrent('l');
@@ -91,9 +105,15 @@ const Positions: React.FC = () => {
 
         const fetchEditsAllowed = async () => {
             try {
-                const res = await axios.get(`${API_BASE_URL}/api/information/getInfo`);
+                const res = await axios.get(`${API_BASE_URL}/api/information/getInfo`, {
+                    signal: abortController.signal
+                });
                 setEditsAllowed(res.data.information.editsAllowed);
             } catch (err) {
+                if (axios.isAxiosError(err) && err.code === 'ERR_CANCELED') {
+                    // Request was cancelled, no need to handle
+                    return;
+                }
                 console.error('Error fetching edits allowed:', err);
                 error('Unable to verify whether lineup edits are currently allowed. Editing may be temporarily disabled.');
             }
@@ -109,6 +129,11 @@ const Positions: React.FC = () => {
         };
 
         initializeData();
+        
+        // Cleanup function to abort requests if component unmounts
+        return () => {
+            abortController.abort();
+        };
     }, [setCurrent, setToken, error]);
 
 

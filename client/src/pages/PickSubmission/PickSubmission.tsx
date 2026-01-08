@@ -46,30 +46,41 @@ const PickSubmission: React.FC = () => {
 
     useEffect(() => {
         setCurrent('p');
-        const dataRes1 = async () =>
-            await axios
-                .post(`${API_BASE_URL}/api/information/findResponse`)
-                .then((res) => res.data)
-                .then((data) => {
-                    setCurrentChoices(data.response);
-                    setLoading(false);
-                })
-                .catch(() => {
-                    setCurrent('l');
-                    setToken(null, false);
-                });
-        dataRes1();
-        const dataRes = async () =>
-            await axios
-                .get(`${API_BASE_URL}/api/information/getInfo`)
-                .then((res) => res.data)
-                .then((data: { information: { options: Array<Pick>, editsAllowed: boolean } }) => {
-                    setPickArray(data.information.options);
-                    setEditsAllowed(data.information.editsAllowed);
-                    setLoading(false);
-                })
-                .catch((err) => console.log(err));
-        dataRes();
+        const abortController = new AbortController();
+        
+        const loadData = async () => {
+            try {
+                // Fetch both endpoints in parallel with abort signal
+                const [responseData, infoData] = await Promise.all([
+                    axios.post(`${API_BASE_URL}/api/information/findResponse`, {}, {
+                        signal: abortController.signal
+                    }),
+                    axios.get(`${API_BASE_URL}/api/information/getInfo`, {
+                        signal: abortController.signal
+                    })
+                ]);
+
+                setCurrentChoices(responseData.data.response);
+                setPickArray(infoData.data.information.options);
+                setEditsAllowed(infoData.data.information.editsAllowed);
+                setLoading(false);
+            } catch (err) {
+                if (axios.isAxiosError(err) && err.code === 'ERR_CANCELED') {
+                    // Request was cancelled, no need to handle
+                    return;
+                }
+                console.log(err);
+                setCurrent('l');
+                setToken(null, false);
+            }
+        };
+        
+        loadData();
+        
+        // Cleanup function to abort requests if component unmounts
+        return () => {
+            abortController.abort();
+        };
     }, [setCurrent, setToken]);
 
     const handleChange = (index: number, value: number | string) => {
