@@ -42,7 +42,7 @@ router.post('/calculateScores', async (req, res) => {
             let score = 0;
             for (let j = 0; j < information.responses[i].response.length; j++) {
                 if (information.responses[i].response[j] === information.correctAnswers[j]) {
-                    score += 1;
+                    score += 30;
                 }
             }
             const user = await User.findById(information.responses[i].users_id);
