@@ -47,6 +47,7 @@ const Home: React.FC = () => {
           return;
         }
         console.log(err);
+        setLoading(false);
       }
     };
     

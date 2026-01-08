@@ -98,6 +98,7 @@ const Positions: React.FC = () => {
                 }
                 error('Failed to load player data');
                 console.error('Error loading data:', err);
+                setLoading(false);
                 setCurrent('l');
                 setToken(null, false);
             }

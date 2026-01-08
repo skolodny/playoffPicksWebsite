@@ -70,6 +70,7 @@ const PickSubmission: React.FC = () => {
                     return;
                 }
                 console.log(err);
+                setLoading(false);
                 setCurrent('l');
                 setToken(null, false);
             }
