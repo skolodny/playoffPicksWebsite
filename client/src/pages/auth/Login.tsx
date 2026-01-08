@@ -32,7 +32,6 @@ const Login: React.FC = () => {
     await axios.post(`${API_BASE_URL}/api/users/login`, { username, password }).then((response) => {
       const { token, admin } = response.data;
       setToken(token, admin);
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     }).catch(() => {
       setLoading(false);
       error();

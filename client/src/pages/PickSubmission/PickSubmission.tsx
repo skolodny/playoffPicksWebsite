@@ -3,6 +3,7 @@ import axios from "axios";
 import { useState, useEffect, useContext } from "react";
 import { message, Spin, Button, Card as AntCard, Input, Select, Typography, Divider, Space, Row, Col } from "antd";
 import { AuthContext } from "../../provider/authContext";
+import { GlobalContext } from "../../provider/globalContext";
 import API_BASE_URL from "../../config/api";
 import "./PickSubmission.css"
 
@@ -16,17 +17,23 @@ export type Pick = {
 };
 
 const PickSubmission: React.FC = () => {
-    const [pickArray, setPickArray] = useState<Array<Pick>>([{ question: "Q1", type: "text", options: [] },
-    { question: "Q2", type: "radio", options: ["Option 1", "Option 2"] },
-    { question: "Q3", type: "number", options: [] }]);
-
-    const [currentChoices, setCurrentChoices] = useState<Array<string | number>>([]);
     const [loading, setLoading] = useState(true);
-    const [editsAllowed, setEditsAllowed] = useState(false);
 
     const [messageApi, contextHolder] = message.useMessage();
 
-    const { setCurrent, setToken, admin } = useContext(AuthContext);
+    const { setCurrent, admin } = useContext(AuthContext);
+    const { 
+        pickQuestions, 
+        editsAllowed: globalEditsAllowed, 
+        userResponses: globalUserResponses,
+        setUserResponses: setGlobalUserResponses,
+        setEditsAllowed: setGlobalEditsAllowed,
+        publicDataLoading,
+        authDataLoading
+    } = useContext(GlobalContext);
+
+    const [currentChoices, setCurrentChoices] = useState<Array<string | number>>(authDataLoading ? [] : globalUserResponses);
+    const [editsAllowed, setEditsAllowed] = useState(globalEditsAllowed);
 
     const success = (message: string) => {
         messageApi.open({
@@ -46,31 +53,16 @@ const PickSubmission: React.FC = () => {
 
     useEffect(() => {
         setCurrent('p');
-        const dataRes1 = async () =>
-            await axios
-                .post(`${API_BASE_URL}/api/information/findResponse`)
-                .then((res) => res.data)
-                .then((data) => {
-                    setCurrentChoices(data.response);
-                    setLoading(false);
-                })
-                .catch(() => {
-                    setCurrent('l');
-                    setToken(null, false);
-                });
-        dataRes1();
-        const dataRes = async () =>
-            await axios
-                .get(`${API_BASE_URL}/api/information/getInfo`)
-                .then((res) => res.data)
-                .then((data: { information: { options: Array<Pick>, editsAllowed: boolean } }) => {
-                    setPickArray(data.information.options);
-                    setEditsAllowed(data.information.editsAllowed);
-                    setLoading(false);
-                })
-                .catch((err) => console.log(err));
-        dataRes();
-    }, [setCurrent, setToken]);
+        
+        // Update local state when global state changes
+        setCurrentChoices(globalUserResponses);
+        setEditsAllowed(globalEditsAllowed);
+        
+        // Wait for public data to load, then mark as ready
+        if (!publicDataLoading) {
+            setLoading(false);
+        }
+    }, [setCurrent, globalUserResponses, globalEditsAllowed, publicDataLoading, authDataLoading]);
 
     const handleChange = (index: number, value: number | string) => {
         // Create a copy of the array to avoid mutating state directly
@@ -82,7 +74,10 @@ const PickSubmission: React.FC = () => {
     const updateData = async () => {
         await axios
             .post(`${API_BASE_URL}/api/information/submitResponse`, { choices: currentChoices })
-            .then(() => success('Saved successfully'))
+            .then(() => {
+                success('Saved successfully');
+                setGlobalUserResponses(currentChoices);
+            })
             .catch(() => error('Failed to save. Ensure you are logged in and that the editing period has not expired'));
     }
 
@@ -100,6 +95,7 @@ const PickSubmission: React.FC = () => {
                 {
                     success(editsAllowed ? 'Editing disabled' : 'Editing enabled');
                     setEditsAllowed(!editsAllowed);
+                    setGlobalEditsAllowed(!editsAllowed);
                 })
             .catch(() => error(editsAllowed ? 'Failed to disable editing' : 'Failed to enable editing. Ensure you are logged in and have proper permissions'));
     }
@@ -128,7 +124,7 @@ const PickSubmission: React.FC = () => {
                     </Title>
                     <Divider />
                     <Space direction="vertical" size="large" style={{ width: "100%" }}>
-                        {pickArray.map((element: Pick, index: number) => (
+                        {pickQuestions.map((element: Pick, index: number) => (
                             <div key={index} className="form-item">
                                 <Text strong className="form-label">
                                     {element.question}

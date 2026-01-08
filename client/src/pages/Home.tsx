@@ -1,55 +1,24 @@
 import React, { useEffect, useState, useContext } from "react"
-import axios from "axios";
 import { Table, Spin, Select, Typography } from "antd";
-import API_BASE_URL from "../config/api";
 import { AuthContext } from "../provider/authContext";
+import { GlobalContext } from "../provider/globalContext";
 
 const { Option } = Select;
 
 const Home: React.FC = () => {
-
-  const [scoreData, setScoreData] = useState([]);
-  const [pickData, setPickData] = useState([]);
-  const [fantasyData, setFantasyData] = useState([]);
-  const [questions, setQuestions] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [selectedTable, setSelectedTable] = useState("leaderboard");
   const { setCurrent } = useContext(AuthContext);
+  const { 
+    leaderboard, 
+    allResponses, 
+    questions, 
+    fantasyLeaderboard, 
+    publicDataLoading 
+  } = useContext(GlobalContext);
   const { Title } = Typography;
 
   useEffect(() => {
     setCurrent('h');
-    const dataRes = async () =>
-      await axios
-        .get(`${API_BASE_URL}/api/users/getTotalUserScores`)
-        .then((res) => res.data)
-        .then((data) => {
-          setScoreData(data.userScores)
-          setLoading(false);
-        })
-        .catch((err) => console.log(err));
-    dataRes();
-    const dataRes1 = async () =>
-      await axios
-        .get(`${API_BASE_URL}/api/information/getAllResponses`)
-        .then((res) => res.data)
-        .then((data) => {
-          setPickData(data.responses);
-          setQuestions(data.questions);
-          setLoading(false);
-        })
-        .catch((err) => console.log(err));
-    dataRes1();
-    const dataRes2 = async () =>
-      await axios
-        .get(`${API_BASE_URL}/api/fantasy/leaderboard`)
-        .then((res) => res.data)
-        .then((data) => {
-          setFantasyData(data.leaderboard || []);
-          setLoading(false);
-        })
-        .catch((err) => console.log(err));
-    dataRes2();
   }, [setCurrent]);
 
   const handleChange = (value: string) => {
@@ -122,7 +91,7 @@ const Home: React.FC = () => {
     }]
 
   return (
-    loading ? 
+    publicDataLoading ? 
     <div className="spin-container">
       <Spin size="large" />
     </div> :
@@ -135,15 +104,15 @@ const Home: React.FC = () => {
         </Select>
         {selectedTable === "leaderboard" ? (
           <>
-            <Table columns={columns} dataSource={scoreData} />
+            <Table columns={columns} dataSource={leaderboard} />
           </>
         ) : selectedTable === "picks" ? (
           <>
-            <Table columns={questions} dataSource={pickData} />
+            <Table columns={questions} dataSource={allResponses} />
           </>
         ) : (
           <>
-            <Table columns={fantasyColumns} dataSource={fantasyData} />
+            <Table columns={fantasyColumns} dataSource={fantasyLeaderboard} />
           </>
         )}
       </div>

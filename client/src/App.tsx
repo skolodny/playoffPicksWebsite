@@ -6,6 +6,7 @@ import PickSubmission from './pages/PickSubmission/PickSubmission';
 import Positions from './pages/Positions/Positions';
 import { ProtectedRoute } from './routes/ProtectedRoute';
 import AuthProvider from './provider/authProvider';
+import GlobalProvider from './provider/globalProvider';
 import { AdminProtectedRoute } from './routes/AdminProtectedRoute';
 import { CreateQuestions } from './pages/admin/CreateQuestions';
 
@@ -28,7 +29,9 @@ const router = createHashRouter(
 function App() {
   return (
     <AuthProvider>
-      <RouterProvider router={router} />
+      <GlobalProvider>
+        <RouterProvider router={router} />
+      </GlobalProvider>
     </AuthProvider>
   );
 }

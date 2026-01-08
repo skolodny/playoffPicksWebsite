@@ -4,7 +4,7 @@ import { AuthContext } from "./authContext";
 
 const AuthProvider = ({ children }: { children: ReactNode }) => {
   // State to hold the authentication token
-  const [token, setToken_] = useState(localStorage.getItem("token"));
+  const [token, setToken_] = useState<string | null>(null);
   const [current, setCurrent_] = useState('h');
   const [admin, setAdmin] = useState(false);
 
@@ -12,11 +12,6 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   const setToken = (newToken: string | null, admin: boolean) => {
     setToken_(newToken);
     setAdmin(admin);
-    if (newToken === null) {
-      localStorage.removeItem("token");
-      return;
-    }
-    localStorage.setItem("token", newToken);
   };
 
   const setCurrent = (key: string) => {
