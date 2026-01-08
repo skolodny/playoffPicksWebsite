@@ -374,40 +374,57 @@ async function calculateLineupPPR(userId, weekNumber) {
         // Convert player names to IDs for lookup
         const playerNameToIdMap = {};
         
-        // For each position, lookup the ESPN ID from the player name
+        // Collect all player names (excluding DEF for now)
+        const regularPlayerNames = [];
+        let defPlayerName = null;
+        
         for (const [position, playerName] of Object.entries(lineup.lineup)) {
-            // Handle DEF position separately - it's a team name
             if (position === 'DEF') {
-                // Extract team name from defense name (e.g., "Kansas City Chiefs Defense" -> "Kansas City Chiefs")
-                const teamName = playerName.replace(' Defense', '').trim();
-                
-                // Get team ID from ESPN API
-                try {
-                    const teamsResponse = await axios.get(`${ESPN_API_BASE}/teams`);
-                    const teams = teamsResponse.data.sports[0].leagues[0].teams;
-                    const team = teams.find(t => t.team.displayName === teamName || t.team.name === teamName);
-                    
-                    if (team) {
-                        playerNameToIdMap[playerName] = team.team.id;
-                    } else {
-                        console.warn(`Team not found for defense: ${playerName}`);
-                        playerNameToIdMap[playerName] = null;
-                    }
-                } catch (err) {
-                    console.error(`Error fetching team for ${playerName}:`, err.message);
-                    playerNameToIdMap[playerName] = null;
-                }
+                defPlayerName = playerName;
             } else {
-                // Regular player - lookup ESPN ID from MongoDB
-                const player = await NFLPlayer.findOne({ name: playerName });
-                if (player) {
-                    playerNameToIdMap[playerName] = player.espn_id;
-                } else {
+                regularPlayerNames.push(playerName);
+            }
+        }
+        
+        // Batch lookup all regular players in a single query
+        if (regularPlayerNames.length > 0) {
+            const players = await NFLPlayer.find({ name: { $in: regularPlayerNames } });
+            players.forEach(player => {
+                playerNameToIdMap[player.name] = player.espn_id;
+            });
+            
+            // Check for any players not found
+            regularPlayerNames.forEach(playerName => {
+                if (!playerNameToIdMap[playerName]) {
                     console.warn(`Player not found in database: ${playerName}`);
                     playerNameToIdMap[playerName] = null;
                 }
-            }
+            });
+        }
+        
+        // Handle DEF position separately - fetch teams once
+        if (defPlayerName) {
+            const teamName = defPlayerName.replace(' Defense', '').trim();
             
+            try {
+                const teamsResponse = await axios.get(`${ESPN_API_BASE}/teams`);
+                const teams = teamsResponse.data.sports[0].leagues[0].teams;
+                const team = teams.find(t => t.team.displayName === teamName || t.team.name === teamName);
+                
+                if (team) {
+                    playerNameToIdMap[defPlayerName] = team.team.id;
+                } else {
+                    console.warn(`Team not found for defense: ${defPlayerName}`);
+                    playerNameToIdMap[defPlayerName] = null;
+                }
+            } catch (err) {
+                console.error(`Error fetching team for ${defPlayerName}:`, err.message);
+                playerNameToIdMap[defPlayerName] = null;
+            }
+        }
+        
+        // Initialize playerPoints for all positions
+        for (const [position, playerName] of Object.entries(lineup.lineup)) {
             playerPoints[position] = {
                 playerName,
                 playerId: playerNameToIdMap[playerName],
