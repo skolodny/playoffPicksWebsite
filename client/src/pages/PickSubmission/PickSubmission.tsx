@@ -28,10 +28,11 @@ const PickSubmission: React.FC = () => {
         userResponses: globalUserResponses,
         setUserResponses: setGlobalUserResponses,
         setEditsAllowed: setGlobalEditsAllowed,
-        publicDataLoading
+        publicDataLoading,
+        authDataLoading
     } = useContext(GlobalContext);
 
-    const [currentChoices, setCurrentChoices] = useState<Array<string | number>>(globalUserResponses);
+    const [currentChoices, setCurrentChoices] = useState<Array<string | number>>(authDataLoading ? [] : globalUserResponses);
     const [editsAllowed, setEditsAllowed] = useState(globalEditsAllowed);
 
     const success = (message: string) => {

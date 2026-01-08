@@ -30,7 +30,6 @@ export type GlobalData = {
   authDataLoading: boolean;
   
   // Methods
-  fetchAuthData: () => Promise<void>;
   setUserResponses: (responses: Array<string | number>) => void;
   setUserLineup: (lineup: { [key: string]: string }) => void;
   setEditsAllowed: (allowed: boolean) => void;
@@ -49,7 +48,6 @@ export const GlobalContext = createContext<GlobalData>({
   userLineup: {},
   publicDataLoading: true,
   authDataLoading: false,
-  fetchAuthData: async () => {},
   setUserResponses: () => {},
   setUserLineup: () => {},
   setEditsAllowed: () => {},

@@ -59,9 +59,7 @@ const GlobalProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   // Fetch authenticated data (requires auth)
-  const fetchAuthData = useCallback(async () => {
-    if (authDataFetched) return; // Don't fetch if already fetched
-    
+  const fetchAuthData = useCallback(async () => {    
     setAuthDataLoading(true);
     try {
       // Fetch all authenticated data in parallel
@@ -108,7 +106,7 @@ const GlobalProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       setAuthDataLoading(false);
     }
-  }, [authDataFetched]);
+  }, []);
 
   // Fetch public data on mount
   useEffect(() => {
@@ -118,11 +116,11 @@ const GlobalProvider = ({ children }: { children: ReactNode }) => {
 
   // Fetch authenticated data if user is already logged in
   useEffect(() => {
-    if (token) {
+    if (token && !authDataFetched) {
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       fetchAuthData();
     }
-  }, [token, fetchAuthData]);
+  }, [token, fetchAuthData, authDataFetched]);
 
   const setUserResponses = useCallback((responses: Array<string | number>) => {
     setUserResponses_(responses);
@@ -150,7 +148,6 @@ const GlobalProvider = ({ children }: { children: ReactNode }) => {
       userLineup,
       publicDataLoading,
       authDataLoading,
-      fetchAuthData,
       setUserResponses,
       setUserLineup,
       setEditsAllowed,
@@ -168,7 +165,6 @@ const GlobalProvider = ({ children }: { children: ReactNode }) => {
       userLineup,
       publicDataLoading,
       authDataLoading,
-      fetchAuthData,
       setUserResponses,
       setUserLineup,
       setEditsAllowed,
