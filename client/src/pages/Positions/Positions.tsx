@@ -22,7 +22,6 @@ const Positions: React.FC = () => {
         userLineup: globalUserLineup,
         editsAllowed: globalEditsAllowed,
         setUserLineup: setGlobalUserLineup,
-        authDataLoading,
         publicDataLoading
     } = useContext(GlobalContext);
 
@@ -53,11 +52,11 @@ const Positions: React.FC = () => {
         setLineup(globalUserLineup);
         setEditsAllowed(globalEditsAllowed);
         
-        // Wait for both public and auth data to load
-        if (!publicDataLoading && !authDataLoading) {
+        // Mark as loaded if public data is available
+        if (!publicDataLoading) {
             setLoading(false);
         }
-    }, [setCurrent, globalUserLineup, globalEditsAllowed, publicDataLoading, authDataLoading]);
+    }, [setCurrent, globalUserLineup, globalEditsAllowed, publicDataLoading]);
 
 
     const handlePositionSelect = (position: string, playerValue: string) => {
