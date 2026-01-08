@@ -12,7 +12,7 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const { token, setToken, setCurrent } = useContext(AuthContext);
-  const { fetchAuthData } = useContext(GlobalContext);
+  const { fetchAuthData, setAuthDataFetched } = useContext(GlobalContext);
   const [messageApi, contextHolder] = message.useMessage();
   const{Title, Text} = Typography;
 
@@ -34,9 +34,6 @@ const Login: React.FC = () => {
     await axios.post(`${API_BASE_URL}/api/users/login`, { username, password }).then((response) => {
       const { token, admin } = response.data;
       setToken(token, admin);
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-      // Fetch authenticated data once user logs in
-      fetchAuthData();
     }).catch(() => {
       setLoading(false);
       error();

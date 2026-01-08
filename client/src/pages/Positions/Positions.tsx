@@ -163,11 +163,12 @@ const Positions: React.FC = () => {
                     </Space>
                     <Divider />
                     <Row gutter={16} justify="end">
+                        {editsAllowed &&
                         <Col>
-                            <Button type="primary" onClick={submitLineup} loading={submitting} disabled={!editsAllowed && !admin}>
+                            <Button type="primary" onClick={submitLineup} loading={submitting}>
                                 Submit Lineup
                             </Button>
-                        </Col>
+                        </Col>}
                         {admin && (
                             <Col>
                                 <Button type="dashed" onClick={calculateFantasyScores}>

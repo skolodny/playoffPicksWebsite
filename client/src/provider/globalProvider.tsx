@@ -1,7 +1,8 @@
-import { useMemo, useState, useEffect, useCallback, ReactNode } from "react";
+import { useMemo, useState, useEffect, useCallback, ReactNode, useContext } from "react";
 import axios from "axios";
 import { GlobalContext, Pick, Player } from "./globalContext";
 import API_BASE_URL from "../config/api";
+import { AuthContext } from "./authContext";
 
 const GlobalProvider = ({ children }: { children: ReactNode }) => {
   // Public data state
@@ -24,8 +25,11 @@ const GlobalProvider = ({ children }: { children: ReactNode }) => {
   // Flag to track if public data has been fetched
   const [publicDataFetched, setPublicDataFetched] = useState(false);
   
-  // Flag to track if auth data has been fetched
+  // Flag to track if auth data has been fetched - is reset on login
   const [authDataFetched, setAuthDataFetched] = useState(false);
+
+  //Auth Context
+  const { token } = useContext(AuthContext);
 
   // Fetch public data (no auth required)
   const fetchPublicData = useCallback(async () => {
@@ -115,12 +119,11 @@ const GlobalProvider = ({ children }: { children: ReactNode }) => {
 
   // Fetch authenticated data if user is already logged in
   useEffect(() => {
-    const token = localStorage.getItem("token");
     if (token) {
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       fetchAuthData();
     }
-  }, [fetchAuthData]);
+  }, [token, fetchAuthData]);
 
   const setUserResponses = useCallback((responses: Array<string | number>) => {
     setUserResponses_(responses);
@@ -153,6 +156,7 @@ const GlobalProvider = ({ children }: { children: ReactNode }) => {
       setUserResponses,
       setUserLineup,
       setEditsAllowed,
+      setAuthDataFetched,
     }),
     [
       leaderboard,

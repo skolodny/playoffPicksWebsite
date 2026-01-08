@@ -35,6 +35,7 @@ export type GlobalData = {
   setUserResponses: (responses: Array<string | number>) => void;
   setUserLineup: (lineup: { [key: string]: string }) => void;
   setEditsAllowed: (allowed: boolean) => void;
+  setAuthDataFetched: (fetched: boolean) => void;
 };
 
 export const GlobalContext = createContext<GlobalData>({
@@ -54,4 +55,5 @@ export const GlobalContext = createContext<GlobalData>({
   setUserResponses: () => {},
   setUserLineup: () => {},
   setEditsAllowed: () => {},
+  setAuthDataFetched: () => {}
 });
