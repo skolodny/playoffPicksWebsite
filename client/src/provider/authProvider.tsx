@@ -12,11 +12,6 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   const setToken = (newToken: string | null, admin: boolean) => {
     setToken_(newToken);
     setAdmin(admin);
-    if (newToken === null) {
-      localStorage.removeItem("token");
-      return;
-    }
-    localStorage.setItem("token", newToken);
   };
 
   const setCurrent = (key: string) => {
