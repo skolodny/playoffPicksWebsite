@@ -62,7 +62,7 @@ const PickSubmission: React.FC = () => {
         if (!publicDataLoading) {
             setLoading(false);
         }
-    }, [setCurrent, globalUserResponses, globalEditsAllowed, publicDataLoading]);
+    }, [setCurrent, globalUserResponses, globalEditsAllowed, publicDataLoading, authDataLoading]);
 
     const handleChange = (index: number, value: number | string) => {
         // Create a copy of the array to avoid mutating state directly
