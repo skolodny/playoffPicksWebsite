@@ -32,9 +32,7 @@ const GlobalProvider = ({ children }: { children: ReactNode }) => {
   const { token } = useContext(AuthContext);
 
   // Fetch public data (no auth required)
-  const fetchPublicData = useCallback(async () => {
-    if (publicDataFetched) return; // Don't fetch if already fetched
-    
+  const fetchPublicData = useCallback(async () => {    
     setPublicDataLoading(true);
     try {
       // Fetch all public data in parallel
@@ -58,7 +56,7 @@ const GlobalProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       setPublicDataLoading(false);
     }
-  }, [publicDataFetched]);
+  }, []);
 
   // Fetch authenticated data (requires auth)
   const fetchAuthData = useCallback(async () => {
@@ -114,8 +112,9 @@ const GlobalProvider = ({ children }: { children: ReactNode }) => {
 
   // Fetch public data on mount
   useEffect(() => {
+    if (publicDataFetched) return; // Don't fetch if already fetched
     fetchPublicData();
-  }, [fetchPublicData]);
+  }, [publicDataFetched, fetchPublicData]);
 
   // Fetch authenticated data if user is already logged in
   useEffect(() => {
@@ -151,7 +150,6 @@ const GlobalProvider = ({ children }: { children: ReactNode }) => {
       userLineup,
       publicDataLoading,
       authDataLoading,
-      fetchPublicData,
       fetchAuthData,
       setUserResponses,
       setUserLineup,
@@ -170,7 +168,6 @@ const GlobalProvider = ({ children }: { children: ReactNode }) => {
       userLineup,
       publicDataLoading,
       authDataLoading,
-      fetchPublicData,
       fetchAuthData,
       setUserResponses,
       setUserLineup,
