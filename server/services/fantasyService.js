@@ -344,6 +344,7 @@ function calculatePPRPoints(stats, category) {
 
 /**
  * Calculate total lineup PPR points for a week
+ * Handles player names instead of IDs by looking up IDs from the NFLPlayer collection
  * @param {string} userId - User ID
  * @param {number} weekNumber - Week number
  * @returns {Promise<Object>} Total points and breakdown
@@ -370,10 +371,63 @@ async function calculateLineupPPR(userId, weekNumber) {
         let totalPoints = 0;
         const playerPoints = {};
         
-        // Initialize all player points to 0
-        for (const [position, playerId] of Object.entries(lineup.lineup)) {
+        // Convert player names to IDs for lookup
+        const playerNameToIdMap = {};
+        
+        // Collect all player names (excluding DEF for now)
+        const regularPlayerNames = [];
+        let defPlayerName = null;
+        
+        for (const [position, playerName] of Object.entries(lineup.lineup)) {
+            if (position === 'DEF') {
+                defPlayerName = playerName;
+            } else {
+                regularPlayerNames.push(playerName);
+            }
+        }
+        
+        // Batch lookup all regular players in a single query
+        if (regularPlayerNames.length > 0) {
+            const players = await NFLPlayer.find({ name: { $in: regularPlayerNames } });
+            players.forEach(player => {
+                playerNameToIdMap[player.name] = player.espn_id;
+            });
+            
+            // Check for any players not found
+            regularPlayerNames.forEach(playerName => {
+                if (!playerNameToIdMap[playerName]) {
+                    console.warn(`Player not found in database: ${playerName}`);
+                    playerNameToIdMap[playerName] = null;
+                }
+            });
+        }
+        
+        // Handle DEF position separately - fetch teams once
+        if (defPlayerName) {
+            const teamName = defPlayerName.replace(' Defense', '').trim();
+            
+            try {
+                const teamsResponse = await axios.get(`${ESPN_API_BASE}/teams`);
+                const teams = teamsResponse.data.sports[0].leagues[0].teams;
+                const team = teams.find(t => t.team.displayName === teamName || t.team.name === teamName);
+                
+                if (team) {
+                    playerNameToIdMap[defPlayerName] = team.team.id;
+                } else {
+                    console.warn(`Team not found for defense: ${defPlayerName}`);
+                    playerNameToIdMap[defPlayerName] = null;
+                }
+            } catch (err) {
+                console.error(`Error fetching team for ${defPlayerName}:`, err.message);
+                playerNameToIdMap[defPlayerName] = null;
+            }
+        }
+        
+        // Initialize playerPoints for all positions
+        for (const [position, playerName] of Object.entries(lineup.lineup)) {
             playerPoints[position] = {
-                playerId,
+                playerName,
+                playerId: playerNameToIdMap[playerName],
                 points: 0
             };
         }
@@ -391,7 +445,13 @@ async function calculateLineupPPR(userId, weekNumber) {
             }
             
             // Calculate points for each player in the lineup that played in this game
-            for (const [position, playerId] of Object.entries(lineup.lineup)) {
+            for (const [position, playerInfo] of Object.entries(playerPoints)) {
+                const playerId = playerInfo.playerId;
+                
+                if (!playerId) {
+                    continue; // Skip if we couldn't find the player ID
+                }
+                
                 const playerStats = gameStats.playerStats[playerId];
                 if (playerStats) {
                     playerPoints[position].points += playerStats.points;

@@ -183,6 +183,8 @@ POST /api/fantasy/submitLineup
 ```
 Submit or update a fantasy lineup for a specific week. Requires all positions: QB, RB1, RB2, WR1, WR2, TE, FLEX, K, DEF.
 
+**Note:** The API accepts and stores **player names** (not player IDs) in lineup submissions.
+
 #### Calculate Fantasy Scores
 ```
 POST /api/admin/fantasy/calculateScores

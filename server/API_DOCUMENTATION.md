@@ -399,20 +399,22 @@ Submit or update weekly fantasy lineup.
 
 **Note:** The week number is automatically retrieved from the database (the week marked with `currentWeek: true`).
 
+**IMPORTANT:** The API now accepts and stores **player names** (not player IDs) in lineup submissions.
+
 **Request Body:**
 ```json
 {
   "userId": "user123",
   "lineup": {
-    "QB": "3139477",
-    "RB1": "4040715",
-    "RB2": "3116406",
-    "WR1": "3043078",
-    "WR2": "4035687",
-    "TE": "3116593",
-    "FLEX": "2576414",
-    "K": "2969939",
-    "DEF": "12"
+    "QB": "Patrick Mahomes",
+    "RB1": "Derrick Henry",
+    "RB2": "Christian McCaffrey",
+    "WR1": "Tyreek Hill",
+    "WR2": "Ja'Marr Chase",
+    "TE": "Travis Kelce",
+    "FLEX": "Davante Adams",
+    "K": "Justin Tucker",
+    "DEF": "Kansas City Chiefs Defense"
   }
 }
 ```
@@ -421,15 +423,15 @@ Submit or update weekly fantasy lineup.
 - `userId`: User ID submitting the lineup
 - `weekNumber`: Week number for this lineup
 - `lineup`: Object with all 9 required positions
-  - `QB`: Quarterback player ID
-  - `RB1`: Running Back 1 player ID
-  - `RB2`: Running Back 2 player ID (must be different from RB1)
-  - `WR1`: Wide Receiver 1 player ID
-  - `WR2`: Wide Receiver 2 player ID (must be different from WR1)
-  - `TE`: Tight End player ID
-  - `FLEX`: Flexible position player ID (can be RB, WR, or TE - must not duplicate any other position)
-  - `K`: Kicker player ID
-  - `DEF`: Defense/Special Teams team ID
+  - `QB`: Quarterback player name
+  - `RB1`: Running Back 1 player name
+  - `RB2`: Running Back 2 player name (must be different from RB1)
+  - `WR1`: Wide Receiver 1 player name
+  - `WR2`: Wide Receiver 2 player name (must be different from WR1)
+  - `TE`: Tight End player name
+  - `FLEX`: Flexible position player name (can be RB, WR, or TE - must not duplicate any other position)
+  - `K`: Kicker player name
+  - `DEF`: Defense/Special Teams team name
 
 **Response - New Lineup (201 Created):**
 ```json
@@ -440,15 +442,15 @@ Submit or update weekly fantasy lineup.
     "userId": "user123",
     "weekNumber": 1,
     "lineup": {
-      "QB": "3139477",
-      "RB1": "4040715",
-      "RB2": "3116406",
-      "WR1": "3043078",
-      "WR2": "4035687",
-      "TE": "3116593",
-      "FLEX": "2576414",
-      "K": "2969939",
-      "DEF": "12"
+      "QB": "Patrick Mahomes",
+      "RB1": "Derrick Henry",
+      "RB2": "Christian McCaffrey",
+      "WR1": "Tyreek Hill",
+      "WR2": "Ja'Marr Chase",
+      "TE": "Travis Kelce",
+      "FLEX": "Davante Adams",
+      "K": "Justin Tucker",
+      "DEF": "Kansas City Chiefs Defense"
     },
     "totalPoints": 0,
     "submittedAt": "2026-01-06T02:00:00.000Z"
@@ -465,15 +467,15 @@ Submit or update weekly fantasy lineup.
     "userId": "user123",
     "weekNumber": 1,
     "lineup": {
-      "QB": "3139477",
-      "RB1": "4040715",
-      "RB2": "3116406",
-      "WR1": "3043078",
-      "WR2": "4035687",
-      "TE": "3116593",
-      "FLEX": "2576414",
-      "K": "2969939",
-      "DEF": "12"
+      "QB": "Patrick Mahomes",
+      "RB1": "Derrick Henry",
+      "RB2": "Christian McCaffrey",
+      "WR1": "Tyreek Hill",
+      "WR2": "Ja'Marr Chase",
+      "TE": "Travis Kelce",
+      "FLEX": "Davante Adams",
+      "K": "Justin Tucker",
+      "DEF": "Kansas City Chiefs Defense"
     },
     "totalPoints": 0,
     "submittedAt": "2026-01-06T02:15:00.000Z"
@@ -498,14 +500,14 @@ Submit or update weekly fantasy lineup.
 **Error Response - Duplicate Players (400 Bad Request):**
 ```json
 {
-  "message": "Duplicate players in lineup: 4040715, 3116406. Each player can only be selected once per week."
+  "message": "Duplicate players in lineup: Patrick Mahomes, Derrick Henry. Each player can only be selected once per week."
 }
 ```
 
 **Error Response - Reused Players (400 Bad Request):**
 ```json
 {
-  "message": "The following players have already been used in previous weeks: 3139477, 4040715. Players cannot be reused across multiple weeks."
+  "message": "The following players have already been used in previous weeks: Patrick Mahomes, Derrick Henry. Players cannot be reused across multiple weeks."
 }
 ```
 
@@ -554,17 +556,17 @@ async function submitFantasyLineup(userId, lineup) {
   }
 }
 
-// Example usage
+// Example usage - Note: Now using player names instead of IDs
 const lineup = {
-  QB: "3139477",
-  RB1: "4040715",
-  RB2: "3116406",
-  WR1: "3043078",
-  WR2: "4035687",
-  TE: "3116593",
-  FLEX: "2576414",
-  K: "2969939",
-  DEF: "12"
+  QB: "Patrick Mahomes",
+  RB1: "Derrick Henry",
+  RB2: "Christian McCaffrey",
+  WR1: "Tyreek Hill",
+  WR2: "Ja'Marr Chase",
+  TE: "Travis Kelce",
+  FLEX: "Davante Adams",
+  K: "Justin Tucker",
+  DEF: "Kansas City Chiefs Defense"
 };
 
 await submitFantasyLineup("user123", 1, lineup);
