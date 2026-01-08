@@ -19,37 +19,43 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     setCurrent('h');
-    const dataRes = async () =>
-      await axios
-        .get(`${API_BASE_URL}/api/users/getTotalUserScores`)
-        .then((res) => res.data)
-        .then((data) => {
-          setScoreData(data.userScores)
-          setLoading(false);
-        })
-        .catch((err) => console.log(err));
-    dataRes();
-    const dataRes1 = async () =>
-      await axios
-        .get(`${API_BASE_URL}/api/information/getAllResponses`)
-        .then((res) => res.data)
-        .then((data) => {
-          setPickData(data.responses);
-          setQuestions(data.questions);
-          setLoading(false);
-        })
-        .catch((err) => console.log(err));
-    dataRes1();
-    const dataRes2 = async () =>
-      await axios
-        .get(`${API_BASE_URL}/api/fantasy/leaderboard`)
-        .then((res) => res.data)
-        .then((data) => {
-          setFantasyData(data.leaderboard || []);
-          setLoading(false);
-        })
-        .catch((err) => console.log(err));
-    dataRes2();
+    const abortController = new AbortController();
+    
+    const loadData = async () => {
+      try {
+        // Fetch all endpoints in parallel with abort signal
+        const [scoresResponse, responsesResponse, fantasyResponse] = await Promise.all([
+          axios.get(`${API_BASE_URL}/api/users/getTotalUserScores`, {
+            signal: abortController.signal
+          }),
+          axios.get(`${API_BASE_URL}/api/information/getAllResponses`, {
+            signal: abortController.signal
+          }),
+          axios.get(`${API_BASE_URL}/api/fantasy/leaderboard`, {
+            signal: abortController.signal
+          })
+        ]);
+
+        setScoreData(scoresResponse.data.userScores);
+        setPickData(responsesResponse.data.responses);
+        setQuestions(responsesResponse.data.questions);
+        setFantasyData(fantasyResponse.data.leaderboard || []);
+        setLoading(false);
+      } catch (err) {
+        if (axios.isAxiosError(err) && err.code === 'ERR_CANCELED') {
+          // Request was cancelled, no need to handle
+          return;
+        }
+        console.log(err);
+      }
+    };
+    
+    loadData();
+    
+    // Cleanup function to abort requests if component unmounts
+    return () => {
+      abortController.abort();
+    };
   }, [setCurrent]);
 
   const handleChange = (value: string) => {
