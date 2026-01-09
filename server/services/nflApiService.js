@@ -183,7 +183,7 @@ async function getGameWinner(gameId) {
             winnerName: homeScore > awayScore ? homeTeam.team.displayName : awayTeam.team.displayName
         };
     } catch (error) {
-        console.error(`Error fetching game ${gameId}:`, error.message);
+        console.error('Error fetching game %s:', gameId, error.message);
         throw new Error('Failed to fetch game details');
     }
 }
@@ -255,7 +255,7 @@ async function getGameStats(gameId) {
             players: players
         };
     } catch (error) {
-        console.error(`Error fetching game stats ${gameId}:`, error.message);
+        console.error('Error fetching game stats %s:', gameId, error.message);
         throw new Error('Failed to fetch game statistics');
     }
 }
