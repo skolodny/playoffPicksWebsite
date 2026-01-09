@@ -45,5 +45,3 @@ app.use('/api/protected', auth, (req, res) => {
 });
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
-app.post('/', (req, res) => { res.send('POST request received'); }); 
