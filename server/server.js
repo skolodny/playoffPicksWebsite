@@ -29,6 +29,12 @@ mongoose.connect(MONGODB_URL) //TODO: Move to .env
     .then(() => console.log('Connected to MongoDB')) 
     .catch(err => console.error('Could not connect to MongoDB', err));
 
+// Health check endpoint
+app.get('/health', (req, res) => {
+    res.status(200).send('OK');
+});
+
+// Routes
 app.use('/api/users', userRoutes);
 app.use('/api/information', informationRoutes);
 app.use('/api/admin', adminAuth, adminRoutes);
