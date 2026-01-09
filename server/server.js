@@ -7,10 +7,19 @@ const adminRoutes = require('./routes/adminRoutes');
 const fantasyRoutes = require('./routes/fantasyRoutes');
 const adminAuth = require('./adminAuth');
 const auth = require('./auth');  
+const rateLimit = require('express-rate-limit');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 const MONGODB_URL = process.env.MONGODB_URL;
+
+var limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  limit: 100, // max 100 requests per windowMs per IP
+});
+
+// apply rate limiter to all requests
+app.use(limiter);
 
 app.use(cors());
 app.use(express.json());
