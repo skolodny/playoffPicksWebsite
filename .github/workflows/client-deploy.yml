@@ -1,4 +1,8 @@
-name: ClientDeploy
+name: Client Deploy
+
+permissions:
+  contents: read
+  pages: write
 
 on:
   push:
