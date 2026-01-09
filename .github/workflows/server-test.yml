@@ -36,3 +36,4 @@ jobs:
         sleep 5
         curl http://localhost:5000/health || exit 1
         kill $APP_PID
+      working-directory: ./server
