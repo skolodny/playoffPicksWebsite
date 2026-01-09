@@ -28,3 +28,14 @@ jobs:
     - name: Test
       run: npm test
       working-directory: ./server
+    
+    - name: Copy .env.example to .env
+      run: cp ./server/.env.example ./server/.env
+    
+    - name: Start app and test
+      run: |
+        npm start &
+        APP_PID=$!
+        sleep 5
+        curl http://localhost:5000/health || exit 1
+        kill $APP_PID
