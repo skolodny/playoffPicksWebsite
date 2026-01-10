@@ -67,7 +67,6 @@ describe('Health Check Endpoint', () => {
                 requests.push(
                     request(app)
                         .get('/api/test')
-                        .catch(err => err.response)
                 );
             }
 
