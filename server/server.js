@@ -18,6 +18,11 @@ const limiter = rateLimit({
   limit: 100, // max 100 requests per windowMs per IP
 });
 
+// Health check endpoint (before rate limiter to prevent rate limiting)
+app.get('/health', (req, res) => {
+    res.status(200).send('OK');
+});
+
 // apply rate limiter to all requests
 app.use(limiter);
 
@@ -28,11 +33,6 @@ app.use(express.json());
 mongoose.connect(MONGODB_URL) //TODO: Move to .env 
     .then(() => console.log('Connected to MongoDB')) 
     .catch(err => console.error('Could not connect to MongoDB', err));
-
-// Health check endpoint
-app.get('/health', (req, res) => {
-    res.status(200).send('OK');
-});
 
 // Routes
 app.use('/api/users', userRoutes);
