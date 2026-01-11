@@ -71,7 +71,7 @@ router1.post('/submitResponse', async (req, res) => {
                 // Check per-question edit status and only update allowed fields
                 const updatedResponse = [...information.responses[i].response];
                 
-                for (let j = 0; j < choices.length; j++) {
+                for (let j = 0; j < choices.length && j < information.questionEditsAllowed.length; j++) {
                     // Only update if editing is allowed for this specific question
                     if (information.questionEditsAllowed[j]) {
                         updatedResponse[j] = choices[j];
