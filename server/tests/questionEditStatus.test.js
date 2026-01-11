@@ -68,7 +68,7 @@ describe('Per-Question Edit Status', () => {
             
             Information.findOne.mockResolvedValue(mockInfo);
             
-            const response = await request(app)
+            await request(app)
                 .post('/api/admin/setQuestionEditStatus')
                 .send({ questionIndex: 0, editsAllowed: false })
                 .expect(200);
@@ -138,7 +138,7 @@ describe('Per-Question Edit Status', () => {
             
             Information.findOne.mockResolvedValue(mockInfo);
             
-            const response = await request(app)
+            await request(app)
                 .get('/api/information/getInfo')
                 .expect(200);
             
@@ -168,7 +168,7 @@ describe('Per-Question Edit Status', () => {
             
             Information.findOne.mockResolvedValue(mockInfo);
             
-            const response = await request(app)
+            await request(app)
                 .post('/api/information/submitResponse')
                 .set('authorization', 'Bearer test-token')
                 .send({ choices: ['new1', 'new2', 'new3'] })
@@ -198,7 +198,7 @@ describe('Per-Question Edit Status', () => {
             
             Information.findOne.mockResolvedValue(mockInfo);
             
-            const response = await request(app)
+            await request(app)
                 .post('/api/information/submitResponse')
                 .set('authorization', 'Bearer test-token')
                 .send({ choices: ['new1', 'new2'] })
