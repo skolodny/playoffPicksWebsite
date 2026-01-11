@@ -178,11 +178,13 @@ const PickSubmission: React.FC = () => {
                     </Space>
                     <Divider />
                     <Row gutter={16} justify="end">
-                        <Col>
-                            <Button type="primary" onClick={updateData}>
-                                Save
-                            </Button>
-                        </Col>
+                        {(questionEditsAllowed.some(allowed => allowed) || admin) && (
+                            <Col>
+                                <Button type="primary" onClick={updateData}>
+                                    Save
+                                </Button>
+                            </Col>
+                        )}
                         {admin && (
                             <>
                                 <Col>

@@ -84,7 +84,7 @@ router.post('/setEditStatus', async (req, res) => {
         const information = await Information.findOne({ currentWeek: true });
         information.editsAllowed = req.body.editsAllowed;
         await information.save();
-        res.status(200).json({ message: 'Edit status updated successfull' });
+        res.status(200).json({ message: 'Edit status updated successfully' });
     } catch (error) {
         res.status(500).json({ message: 'Server error' });   
     }

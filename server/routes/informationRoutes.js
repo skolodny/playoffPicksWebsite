@@ -10,6 +10,10 @@ router1.get('/getInfo', async (req, res) => {
     try {
         const information = await Information.findOne({ currentWeek: true });
         
+        if (!information) {
+            return res.status(404).json({ message: 'No current week found' });
+        }
+        
         // Initialize questionEditsAllowed if it doesn't exist
         if (!information.questionEditsAllowed || information.questionEditsAllowed.length !== information.options.length) {
             information.questionEditsAllowed = Array(information.options.length).fill(true);
@@ -46,6 +50,11 @@ router1.post('/findResponse', async (req, res) => {
 router1.post('/submitResponse', async (req, res) => {
     try {    
         const information = await Information.findOne({ currentWeek: true });
+        
+        if (!information) {
+            return res.status(404).json({ message: 'No current week found' });
+        }
+        
         const { choices } = req.body;
         const header = req.header('authorization');
         const authorization = header.split(' ');

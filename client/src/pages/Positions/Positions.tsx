@@ -120,15 +120,16 @@ const Positions: React.FC = () => {
 
     const setEditStatus = async () => {
         try {
-            await axios.post(`${API_BASE_URL}/api/admin/setEditStatus`, { editsAllowed: !editsAllowed });
-            success(editsAllowed ? 'Fantasy lineup editing disabled' : 'Fantasy lineup editing enabled');
-            setEditsAllowed(!editsAllowed);
-            setGlobalEditsAllowed(!editsAllowed);
+            const newStatus = !editsAllowed;
+            await axios.post(`${API_BASE_URL}/api/admin/setEditStatus`, { editsAllowed: newStatus });
+            success(newStatus ? 'Fantasy lineup editing enabled' : 'Fantasy lineup editing disabled');
+            setEditsAllowed(newStatus);
+            setGlobalEditsAllowed(newStatus);
         } catch (err) {
             console.error('Error setting edit status:', err);
             const errorMessage = axios.isAxiosError(err) && err.response?.data?.message
                 ? err.response.data.message
-                : editsAllowed ? 'Failed to disable editing' : 'Failed to enable editing. Ensure you are logged in and have proper permissions';
+                : 'Failed to update edit status. Ensure you are logged in and have proper permissions';
             error(errorMessage);
         }
     };
