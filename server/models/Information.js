@@ -14,7 +14,8 @@ const InformationSchema = new mongoose.Schema({
         response: { type: mongoose.Schema.Types.Array },
         date: { type: mongoose.Schema.Types.Date }
     }],
-    editsAllowed: { type: mongoose.Schema.Types.Boolean },
+    editsAllowed: { type: mongoose.Schema.Types.Boolean }, // For fantasy lineup editing
+    questionEditsAllowed: { type: mongoose.Schema.Types.Array }, // Per-question edit control for pick submission
     currentWeek: { type: mongoose.Schema.Types.Boolean }
 });
 
