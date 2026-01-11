@@ -22,6 +22,7 @@ const Positions: React.FC = () => {
         userLineup: globalUserLineup,
         editsAllowed: globalEditsAllowed,
         setUserLineup: setGlobalUserLineup,
+        setEditsAllowed: setGlobalEditsAllowed,
         publicDataLoading
     } = useContext(GlobalContext);
 
@@ -117,6 +118,21 @@ const Positions: React.FC = () => {
         }
     };
 
+    const setEditStatus = async () => {
+        try {
+            await axios.post(`${API_BASE_URL}/api/admin/setEditStatus`, { editsAllowed: !editsAllowed });
+            success(editsAllowed ? 'Fantasy lineup editing disabled' : 'Fantasy lineup editing enabled');
+            setEditsAllowed(!editsAllowed);
+            setGlobalEditsAllowed(!editsAllowed);
+        } catch (err) {
+            console.error('Error setting edit status:', err);
+            const errorMessage = axios.isAxiosError(err) && err.response?.data?.message
+                ? err.response.data.message
+                : editsAllowed ? 'Failed to disable editing' : 'Failed to enable editing. Ensure you are logged in and have proper permissions';
+            error(errorMessage);
+        }
+    };
+
     return loading ? (
         <div className="spin-container">
             <Spin size="large" />
@@ -171,11 +187,18 @@ const Positions: React.FC = () => {
                             </Col>
                         )}
                         {admin && (
-                            <Col>
-                                <Button type="dashed" onClick={calculateFantasyScores}>
-                                    Calculate Fantasy Scores
-                                </Button>
-                            </Col>
+                            <>
+                                <Col>
+                                    <Button type="dashed" onClick={setEditStatus}>
+                                        {editsAllowed ? "Disable Fantasy Editing" : "Enable Fantasy Editing"}
+                                    </Button>
+                                </Col>
+                                <Col>
+                                    <Button type="dashed" onClick={calculateFantasyScores}>
+                                        Calculate Fantasy Scores
+                                    </Button>
+                                </Col>
+                            </>
                         )}
                     </Row>
                 </AntCard>

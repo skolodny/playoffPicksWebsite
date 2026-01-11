@@ -11,7 +11,8 @@ const GlobalProvider = ({ children }: { children: ReactNode }) => {
   const [questions, setQuestions] = useState<Array<Record<string, unknown>>>([]);
   const [fantasyLeaderboard, setFantasyLeaderboard] = useState<Array<Record<string, unknown>>>([]);
   const [pickQuestions, setPickQuestions] = useState<Array<Pick>>([]);
-  const [editsAllowed, setEditsAllowed_] = useState(false);
+  const [editsAllowed, setEditsAllowed_] = useState(false); // For fantasy lineup editing
+  const [questionEditsAllowed, setQuestionEditsAllowed_] = useState<Array<boolean>>([]); // Per-question edit control
   
   // Authenticated data state
   const [userResponses, setUserResponses_] = useState<Array<string | number>>([]);
@@ -49,6 +50,7 @@ const GlobalProvider = ({ children }: { children: ReactNode }) => {
       setFantasyLeaderboard(fantasyRes.data.leaderboard || []);
       setPickQuestions(infoRes.data.information.options || []);
       setEditsAllowed_(infoRes.data.information.editsAllowed || false);
+      setQuestionEditsAllowed_(infoRes.data.information.questionEditsAllowed || []);
       
       setPublicDataFetched(true);
     } catch (err) {
@@ -134,6 +136,10 @@ const GlobalProvider = ({ children }: { children: ReactNode }) => {
     setEditsAllowed_(allowed);
   }, []);
 
+  const setQuestionEditsAllowed = useCallback((allowed: Array<boolean>) => {
+    setQuestionEditsAllowed_(allowed);
+  }, []);
+
   // Memoized value of the global context
   const contextValue = useMemo(
     () => ({
@@ -143,6 +149,7 @@ const GlobalProvider = ({ children }: { children: ReactNode }) => {
       fantasyLeaderboard,
       pickQuestions,
       editsAllowed,
+      questionEditsAllowed,
       userResponses,
       availablePlayers,
       userLineup,
@@ -151,6 +158,7 @@ const GlobalProvider = ({ children }: { children: ReactNode }) => {
       setUserResponses,
       setUserLineup,
       setEditsAllowed,
+      setQuestionEditsAllowed,
       setAuthDataFetched,
     }),
     [
@@ -160,6 +168,7 @@ const GlobalProvider = ({ children }: { children: ReactNode }) => {
       fantasyLeaderboard,
       pickQuestions,
       editsAllowed,
+      questionEditsAllowed,
       userResponses,
       availablePlayers,
       userLineup,
@@ -167,6 +176,7 @@ const GlobalProvider = ({ children }: { children: ReactNode }) => {
       authDataLoading,
       setAuthDataFetched,
       setEditsAllowed,
+      setQuestionEditsAllowed,
       setUserLineup,
       setUserResponses
     ]
