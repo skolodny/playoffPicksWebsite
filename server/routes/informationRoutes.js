@@ -83,7 +83,7 @@ router1.post('/submitResponse', async (req, res) => {
                 
                 information.responses[i].response = updatedResponse;
                 information.responses[i].date = new Date();
-                information.save();
+                await information.save();
                 return res.status(200).json({ message: 'Response submitted' });
             }
         }
