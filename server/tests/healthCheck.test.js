@@ -1,6 +1,7 @@
 /**
  * Tests for Health Check Endpoint
  * Verifies that the health check endpoint is not rate-limited
+ * Also tests trust proxy configuration for rate limiting
  */
 
 const request = require('supertest');
@@ -78,3 +79,57 @@ describe('Health Check Endpoint', () => {
         });
     });
 });
+
+describe('Trust Proxy Configuration', () => {
+    let app;
+
+    beforeEach(() => {
+        // Create a fresh app instance for each test
+        app = express();
+        
+        // Enable trust proxy (as done in server.js for Render deployment)
+        app.set('trust proxy', 1);
+        
+        const limiter = rateLimit({
+            windowMs: 15 * 60 * 1000, // 15 minutes
+            limit: 5, // Low limit to make testing easier
+        });
+
+        // Apply rate limiter to all requests
+        app.use(limiter);
+
+        // Add a test endpoint
+        app.get('/api/test', (req, res) => {
+            res.status(200).json({ message: 'test' });
+        });
+    });
+
+    test('should handle X-Forwarded-For header without error when trust proxy is enabled', async () => {
+        // Make a request with X-Forwarded-For header (simulating proxy)
+        const response = await request(app)
+            .get('/api/test')
+            .set('X-Forwarded-For', '192.168.1.1')
+            .expect(200);
+        
+        expect(response.body.message).toBe('test');
+    });
+
+    test('should rate limit based on X-Forwarded-For header when trust proxy is enabled', async () => {
+        // Make more requests than the rate limit allows from the same IP via X-Forwarded-For
+        const requests = [];
+        for (let i = 0; i < 10; i++) {
+            requests.push(
+                request(app)
+                    .get('/api/test')
+                    .set('X-Forwarded-For', '192.168.1.100')
+            );
+        }
+
+        const responses = await Promise.all(requests);
+
+        // Some requests should be rate limited (429 status)
+        const rateLimitedResponses = responses.filter(r => r.status === 429);
+        expect(rateLimitedResponses.length).toBeGreaterThan(0);
+    });
+});
+
