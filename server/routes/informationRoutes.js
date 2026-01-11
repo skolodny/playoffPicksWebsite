@@ -56,6 +56,9 @@ router1.post('/submitResponse', async (req, res) => {
         }
         
         const { choices } = req.body;
+        if (!Array.isArray(choices)) {
+            return res.status(400).json({ message: 'Invalid request: "choices" must be an array.' });
+        }
         const header = req.header('authorization');
         const authorization = header.split(' ');
         const token = authorization.length == 2 ? authorization[1] : authorization[0]; 
