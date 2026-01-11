@@ -9,8 +9,19 @@ const SECRET_KEY = process.env.SECRET_KEY || 'yourSecretKey';
 router1.get('/getInfo', async (req, res) => {
     try {
         const information = await Information.findOne({ currentWeek: true });
+        
+        if (!information) {
+            return res.status(404).json({ message: 'No current week found' });
+        }
+        
+        // Initialize questionEditsAllowed if it doesn't exist
+        if (!information.questionEditsAllowed || information.questionEditsAllowed.length !== information.options.length) {
+            information.questionEditsAllowed = Array(information.options.length).fill(true);
+            await information.save();
+        }
+        
         return res.status(200).json({ information });
-    } catch (err) { 
+    } catch { 
         return res.status(400).json({ message: 'Invalid token' });
     }
 });
@@ -39,19 +50,40 @@ router1.post('/findResponse', async (req, res) => {
 router1.post('/submitResponse', async (req, res) => {
     try {    
         const information = await Information.findOne({ currentWeek: true });
-        if (!information.editsAllowed) {
-            return res.status(400).json({ message: 'Edits not allowed' });
+        
+        if (!information) {
+            return res.status(404).json({ message: 'No current week found' });
         }
+        
         const { choices } = req.body;
+        if (!Array.isArray(choices)) {
+            return res.status(400).json({ message: 'Invalid request: "choices" must be an array.' });
+        }
         const header = req.header('authorization');
         const authorization = header.split(' ');
         const token = authorization.length == 2 ? authorization[1] : authorization[0]; 
         const decodedToken = jwt.verify(token, SECRET_KEY);
+        
+        // Initialize questionEditsAllowed if it doesn't exist
+        if (!information.questionEditsAllowed || information.questionEditsAllowed.length !== information.options.length) {
+            information.questionEditsAllowed = Array(information.options.length).fill(true);
+        }
+        
         for (let i = 0; i < information.responses.length; i++) {
             if (information.responses[i].users_id.toString() === decodedToken.userId) {
-                information.responses[i].response = choices;
+                // Check per-question edit status and only update allowed fields
+                const updatedResponse = [...information.responses[i].response];
+                
+                for (let j = 0; j < choices.length && j < information.questionEditsAllowed.length; j++) {
+                    // Only update if editing is allowed for this specific question
+                    if (information.questionEditsAllowed[j]) {
+                        updatedResponse[j] = choices[j];
+                    }
+                }
+                
+                information.responses[i].response = updatedResponse;
                 information.responses[i].date = new Date();
-                information.save();
+                await information.save();
                 return res.status(200).json({ message: 'Response submitted' });
             }
         }

@@ -68,7 +68,8 @@ router.post('/createNewWeek', async (req, res) => {
             weekNumber: oldWeekNumber + 1,
             correctAnswers: [],
             responses: [],
-            editsAllowed: true,
+            editsAllowed: true, // For fantasy lineup editing
+            questionEditsAllowed: Array(req.body.options.length).fill(true), // Initialize all questions as editable
             currentWeek: true,
         });
         await newInformation.save();
@@ -83,9 +84,41 @@ router.post('/setEditStatus', async (req, res) => {
         const information = await Information.findOne({ currentWeek: true });
         information.editsAllowed = req.body.editsAllowed;
         await information.save();
-        res.status(200).json({ message: 'Edit status updated successfull' });
+        res.status(200).json({ message: 'Edit status updated successfully' });
     } catch (error) {
         res.status(500).json({ message: 'Server error' });   
+    }
+});
+
+router.post('/setQuestionEditStatus', async (req, res) => {
+    try {
+        const { questionIndex, editsAllowed } = req.body;
+        
+        if (typeof questionIndex !== 'number' || typeof editsAllowed !== 'boolean') {
+            return res.status(400).json({ message: 'Invalid parameters' });
+        }
+        
+        const information = await Information.findOne({ currentWeek: true });
+        
+        if (!information) {
+            return res.status(404).json({ message: 'No current week found' });
+        }
+        
+        if (questionIndex < 0 || questionIndex >= information.options.length) {
+            return res.status(400).json({ message: 'Invalid question index' });
+        }
+        
+        // Initialize questionEditsAllowed if it doesn't exist
+        if (!information.questionEditsAllowed || information.questionEditsAllowed.length !== information.options.length) {
+            information.questionEditsAllowed = Array(information.options.length).fill(true);
+        }
+        
+        information.questionEditsAllowed[questionIndex] = editsAllowed;
+        await information.save();
+        
+        res.status(200).json({ message: 'Question edit status updated successfully' });
+    } catch {
+        res.status(500).json({ message: 'Server error' });
     }
 });
 

@@ -1,7 +1,7 @@
 import React from "react";
 import axios from "axios";
 import { useState, useEffect, useContext } from "react";
-import { message, Spin, Button, Card as AntCard, Input, Select, Typography, Divider, Space, Row, Col } from "antd";
+import { message, Spin, Button, Card as AntCard, Input, Select, Typography, Divider, Space, Row, Col, Switch } from "antd";
 import { AuthContext } from "../../provider/authContext";
 import { GlobalContext } from "../../provider/globalContext";
 import API_BASE_URL from "../../config/api";
@@ -24,16 +24,16 @@ const PickSubmission: React.FC = () => {
     const { setCurrent, admin } = useContext(AuthContext);
     const { 
         pickQuestions, 
-        editsAllowed: globalEditsAllowed, 
+        questionEditsAllowed: globalQuestionEditsAllowed,
         userResponses: globalUserResponses,
         setUserResponses: setGlobalUserResponses,
-        setEditsAllowed: setGlobalEditsAllowed,
+        setQuestionEditsAllowed: setGlobalQuestionEditsAllowed,
         publicDataLoading,
         authDataLoading
     } = useContext(GlobalContext);
 
     const [currentChoices, setCurrentChoices] = useState<Array<string | number>>(authDataLoading ? [] : globalUserResponses);
-    const [editsAllowed, setEditsAllowed] = useState(globalEditsAllowed);
+    const [questionEditsAllowed, setQuestionEditsAllowed] = useState<Array<boolean>>(globalQuestionEditsAllowed);
 
     const success = (message: string) => {
         messageApi.open({
@@ -56,13 +56,13 @@ const PickSubmission: React.FC = () => {
         
         // Update local state when global state changes
         setCurrentChoices(globalUserResponses);
-        setEditsAllowed(globalEditsAllowed);
+        setQuestionEditsAllowed(globalQuestionEditsAllowed);
         
         // Wait for public data to load, then mark as ready
         if (!publicDataLoading) {
             setLoading(false);
         }
-    }, [setCurrent, globalUserResponses, globalEditsAllowed, publicDataLoading, authDataLoading]);
+    }, [setCurrent, globalUserResponses, globalQuestionEditsAllowed, publicDataLoading, authDataLoading]);
 
     const handleChange = (index: number, value: number | string) => {
         // Create a copy of the array to avoid mutating state directly
@@ -88,16 +88,26 @@ const PickSubmission: React.FC = () => {
             .catch(() => error('Failed to save as correct answers. Ensure you are logged in and have proper permissions'));
     }
 
-    const setEditStatus = async () => {
+    const toggleQuestionEditStatus = async (questionIndex: number) => {
+        // Guard against out-of-bounds access in case questionEditsAllowed is not yet fully initialized
+        if (questionIndex < 0 || questionIndex >= questionEditsAllowed.length) {
+            error('Invalid question index. Please refresh the page and try again.');
+            return;
+        }
+        const newStatus = !questionEditsAllowed[questionIndex];
         await axios
-            .post(`${API_BASE_URL}/api/admin/setEditStatus`, { editsAllowed: !editsAllowed })
-            .then(() => 
-                {
-                    success(editsAllowed ? 'Editing disabled' : 'Editing enabled');
-                    setEditsAllowed(!editsAllowed);
-                    setGlobalEditsAllowed(!editsAllowed);
-                })
-            .catch(() => error(editsAllowed ? 'Failed to disable editing' : 'Failed to enable editing. Ensure you are logged in and have proper permissions'));
+            .post(`${API_BASE_URL}/api/admin/setQuestionEditStatus`, { 
+                questionIndex, 
+                editsAllowed: newStatus 
+            })
+            .then(() => {
+                success(`Question ${questionIndex + 1} editing ${newStatus ? 'enabled' : 'disabled'}`);
+                const updatedStatus = [...questionEditsAllowed];
+                updatedStatus[questionIndex] = newStatus;
+                setQuestionEditsAllowed(updatedStatus);
+                setGlobalQuestionEditsAllowed(updatedStatus);
+            })
+            .catch(() => error('Failed to update question edit status. Ensure you are logged in and have proper permissions'));
     }
 
     const calculateScores = async () => {
@@ -126,9 +136,24 @@ const PickSubmission: React.FC = () => {
                     <Space direction="vertical" size="large" style={{ width: "100%" }}>
                         {pickQuestions.map((element: Pick, index: number) => (
                             <div key={index} className="form-item">
-                                <Text strong className="form-label">
-                                    {element.question}
-                                </Text>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                                    <Text strong className="form-label">
+                                        {element.question}
+                                    </Text>
+                                    {admin && (
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                            <Text type="secondary" style={{ fontSize: '12px' }}>
+                                                {questionEditsAllowed[index] ? 'Edits Enabled' : 'Edits Disabled'}
+                                            </Text>
+                                            <Switch
+                                                checked={questionEditsAllowed[index]}
+                                                onChange={() => toggleQuestionEditStatus(index)}
+                                                checkedChildren="ON"
+                                                unCheckedChildren="OFF"
+                                            />
+                                        </div>
+                                    )}
+                                </div>
                                 {element.type === "text" || element.type === "number" ? (
                                     <Input
                                         className="form-input"
@@ -136,7 +161,7 @@ const PickSubmission: React.FC = () => {
                                         onChange={(e: { target: { value: string | number; }; }) =>
                                             handleChange(index, e.target.value)
                                         }
-                                        disabled={!editsAllowed && !admin}
+                                        disabled={!questionEditsAllowed[index]}
                                         type={element.type}
                                     />
                                 ) : element.type === "dropdown" ? (
@@ -144,7 +169,7 @@ const PickSubmission: React.FC = () => {
                                         className="form-select"
                                         value={currentChoices[index]}
                                         onChange={(value: string | number) => handleChange(index, value)}
-                                        disabled={!editsAllowed && !admin}
+                                        disabled={!questionEditsAllowed[index]}
                                     >
                                         {element?.options.map((option, optIndex) => (
                                             <Option key={`${index}-${optIndex}`} value={option}>
@@ -158,7 +183,7 @@ const PickSubmission: React.FC = () => {
                     </Space>
                     <Divider />
                     <Row gutter={16} justify="end">
-                        {editsAllowed && (
+                        {(questionEditsAllowed.some(allowed => allowed)) && (
                             <Col>
                                 <Button type="primary" onClick={updateData}>
                                     Save
@@ -170,11 +195,6 @@ const PickSubmission: React.FC = () => {
                                 <Col>
                                     <Button type="dashed" onClick={setCorrectAnswers}>
                                         Save as Correct Answers
-                                    </Button>
-                                </Col>
-                                <Col>
-                                    <Button type="dashed" onClick={setEditStatus}>
-                                        {editsAllowed ? "Disable Editing" : "Enable Editing"}
                                     </Button>
                                 </Col>
                                 <Col>

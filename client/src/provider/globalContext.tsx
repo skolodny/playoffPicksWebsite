@@ -18,7 +18,8 @@ export type GlobalData = {
   questions: Array<Record<string, unknown>>;
   fantasyLeaderboard: Array<Record<string, unknown>>;
   pickQuestions: Array<Pick>;
-  editsAllowed: boolean;
+  editsAllowed: boolean; // For fantasy lineup editing
+  questionEditsAllowed: Array<boolean>; // Per-question edit control for pick submission
   
   // Authenticated data (requires auth)
   userResponses: Array<string | number>;
@@ -33,6 +34,7 @@ export type GlobalData = {
   setUserResponses: (responses: Array<string | number>) => void;
   setUserLineup: (lineup: { [key: string]: string }) => void;
   setEditsAllowed: (allowed: boolean) => void;
+  setQuestionEditsAllowed: (allowed: Array<boolean>) => void;
   setAuthDataFetched: (fetched: boolean) => void;
 };
 
@@ -43,6 +45,7 @@ export const GlobalContext = createContext<GlobalData>({
   fantasyLeaderboard: [],
   pickQuestions: [],
   editsAllowed: false,
+  questionEditsAllowed: [],
   userResponses: [],
   availablePlayers: {},
   userLineup: {},
@@ -51,5 +54,6 @@ export const GlobalContext = createContext<GlobalData>({
   setUserResponses: () => {},
   setUserLineup: () => {},
   setEditsAllowed: () => {},
+  setQuestionEditsAllowed: () => {},
   setAuthDataFetched: () => {}
 });
