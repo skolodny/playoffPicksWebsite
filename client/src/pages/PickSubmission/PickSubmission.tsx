@@ -89,6 +89,11 @@ const PickSubmission: React.FC = () => {
     }
 
     const toggleQuestionEditStatus = async (questionIndex: number) => {
+        // Guard against out-of-bounds access in case questionEditsAllowed is not yet fully initialized
+        if (questionIndex < 0 || questionIndex >= questionEditsAllowed.length) {
+            error('Invalid question index. Please refresh the page and try again.');
+            return;
+        }
         const newStatus = !questionEditsAllowed[questionIndex];
         await axios
             .post(`${API_BASE_URL}/api/admin/setQuestionEditStatus`, { 
