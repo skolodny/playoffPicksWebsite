@@ -24,7 +24,7 @@ const Header: React.FC = () => {
         )}
         {token && (
           <Menu.Item key="pos" icon={<TrophyTwoTone />}>
-            <Link to="/positions">Positions</Link>
+            <Link to="/fantasy">Fantasy</Link>
           </Menu.Item>
         )}
         {!token && (

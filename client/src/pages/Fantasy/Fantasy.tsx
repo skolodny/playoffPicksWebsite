@@ -4,14 +4,14 @@ import { message, Spin, Button, Card as AntCard, Select, Typography, Divider, Sp
 import { AuthContext } from "../../provider/authContext";
 import { GlobalContext } from "../../provider/globalContext";
 import API_BASE_URL from "../../config/api";
-import "./Positions.css";
+import "./Fantasy.css";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
 
 const POSITIONS = ['QB', 'RB1', 'RB2', 'WR1', 'WR2', 'TE', 'FLEX', 'PK', 'DEF'];
 
-const Positions: React.FC = () => {
+const Fantasy: React.FC = () => {
     const [submitting, setSubmitting] = useState(false);
 
     const [messageApi, contextHolder] = message.useMessage();
@@ -208,4 +208,4 @@ const Positions: React.FC = () => {
     );
 };
 
-export default Positions;
+export default Fantasy;
