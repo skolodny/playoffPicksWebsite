@@ -117,7 +117,7 @@ router.post('/setQuestionEditStatus', async (req, res) => {
         await information.save();
         
         res.status(200).json({ message: 'Question edit status updated successfully' });
-    } catch (error) {
+    } catch {
         res.status(500).json({ message: 'Server error' });
     }
 });
