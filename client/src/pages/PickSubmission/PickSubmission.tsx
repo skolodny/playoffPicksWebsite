@@ -161,7 +161,7 @@ const PickSubmission: React.FC = () => {
                                         onChange={(e: { target: { value: string | number; }; }) =>
                                             handleChange(index, e.target.value)
                                         }
-                                        disabled={!questionEditsAllowed[index] && !admin}
+                                        disabled={!questionEditsAllowed[index]}
                                         type={element.type}
                                     />
                                 ) : element.type === "dropdown" ? (
@@ -169,7 +169,7 @@ const PickSubmission: React.FC = () => {
                                         className="form-select"
                                         value={currentChoices[index]}
                                         onChange={(value: string | number) => handleChange(index, value)}
-                                        disabled={!questionEditsAllowed[index] && !admin}
+                                        disabled={!questionEditsAllowed[index]}
                                     >
                                         {element?.options.map((option, optIndex) => (
                                             <Option key={`${index}-${optIndex}`} value={option}>
@@ -183,7 +183,7 @@ const PickSubmission: React.FC = () => {
                     </Space>
                     <Divider />
                     <Row gutter={16} justify="end">
-                        {(questionEditsAllowed.some(allowed => allowed) || admin) && (
+                        {(questionEditsAllowed.some(allowed => allowed)) && (
                             <Col>
                                 <Button type="primary" onClick={updateData}>
                                     Save
