@@ -21,7 +21,7 @@ router1.get('/getInfo', async (req, res) => {
         }
         
         return res.status(200).json({ information });
-    } catch (err) { 
+    } catch { 
         return res.status(400).json({ message: 'Invalid token' });
     }
 });
