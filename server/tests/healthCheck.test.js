@@ -1,6 +1,7 @@
 /**
  * Tests for Health Check Endpoint
  * Verifies that the health check endpoint is not rate-limited
+ * Also tests trust proxy configuration for rate limiting
  */
 
 const request = require('supertest');
@@ -78,3 +79,96 @@ describe('Health Check Endpoint', () => {
         });
     });
 });
+
+describe('Trust Proxy Configuration', () => {
+    let app;
+
+    beforeEach(() => {
+        // Create a fresh app instance for each test
+        app = express();
+        
+        // Enable trust proxy (as done in server.js for Render deployment)
+        app.set('trust proxy', 1);
+        
+        const limiter = rateLimit({
+            windowMs: 15 * 60 * 1000, // 15 minutes
+            limit: 5, // Low limit to make testing easier
+        });
+
+        // Apply rate limiter to all requests
+        app.use(limiter);
+
+        // Add a test endpoint
+        app.get('/api/test', (req, res) => {
+            res.status(200).json({ message: 'test' });
+        });
+    });
+
+    test('should handle X-Forwarded-For header without error when trust proxy is enabled', async () => {
+        // Make a request with X-Forwarded-For header (simulating proxy)
+        const response = await request(app)
+            .get('/api/test')
+            .set('X-Forwarded-For', '192.168.1.1')
+            .expect(200);
+        
+        expect(response.body.message).toBe('test');
+    });
+
+    test('should rate limit based on X-Forwarded-For header when trust proxy is enabled', async () => {
+        // Make more requests than the rate limit allows from the same IP via X-Forwarded-For
+        const requests = [];
+        for (let i = 0; i < 10; i++) {
+            requests.push(
+                request(app)
+                    .get('/api/test')
+                    .set('X-Forwarded-For', '192.168.1.100')
+            );
+        }
+
+        const responses = await Promise.all(requests);
+
+        // Some requests should be rate limited (429 status)
+        const rateLimitedResponses = responses.filter(r => r.status === 429);
+        expect(rateLimitedResponses.length).toBeGreaterThan(0);
+    });
+
+    test('should differentiate between different client IPs via X-Forwarded-For header', async () => {
+        // Make requests from two different IPs, each should have its own rate limit quota
+        const ip1 = '192.168.1.200';
+        const ip2 = '192.168.1.201';
+        
+        // Make 5 requests from IP1 (at the limit but not over)
+        const ip1Requests = [];
+        for (let i = 0; i < 5; i++) {
+            ip1Requests.push(
+                request(app)
+                    .get('/api/test')
+                    .set('X-Forwarded-For', ip1)
+            );
+        }
+        
+        // Make 5 requests from IP2 (at the limit but not over)
+        const ip2Requests = [];
+        for (let i = 0; i < 5; i++) {
+            ip2Requests.push(
+                request(app)
+                    .get('/api/test')
+                    .set('X-Forwarded-For', ip2)
+            );
+        }
+        
+        const ip1Responses = await Promise.all(ip1Requests);
+        const ip2Responses = await Promise.all(ip2Requests);
+        
+        // All requests from IP1 should succeed (none rate limited)
+        const ip1RateLimited = ip1Responses.filter(r => r.status === 429);
+        expect(ip1RateLimited.length).toBe(0);
+        
+        // All requests from IP2 should succeed (none rate limited)
+        const ip2RateLimited = ip2Responses.filter(r => r.status === 429);
+        expect(ip2RateLimited.length).toBe(0);
+        
+        // This proves each IP has its own quota, not shared
+    });
+});
+

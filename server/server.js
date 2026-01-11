@@ -13,6 +13,10 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const MONGODB_URL = process.env.MONGODB_URL;
 
+// Trust first proxy (required for Render.com and other reverse proxies)
+// This allows express-rate-limit to correctly identify users via X-Forwarded-For header
+app.set('trust proxy', 1);
+
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   limit: 100, // max 100 requests per windowMs per IP
