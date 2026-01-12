@@ -92,6 +92,6 @@ To reset the database with fresh mock data:
 ```bash
 cd server
 export MONGODB_URL="mongodb://localhost:27017/playoff_picks"
-export SECRET_KEY="local-dev-secret-key-change-in-production"
+export SECRET_KEY="INSECURE-LOCAL-ONLY-DO-NOT-USE-IN-PRODUCTION"
 node scripts/initMockData.js
 ```
