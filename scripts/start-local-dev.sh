@@ -14,6 +14,9 @@ NC='\033[0m' # No Color
 # Get the absolute path to the repository root
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
+# MongoDB container name (must match docker-compose.yml)
+MONGODB_CONTAINER="playoff-picks-mongodb"
+
 echo -e "${BLUE}================================================${NC}"
 echo -e "${BLUE}Playoff Picks Local Development Environment${NC}"
 echo -e "${BLUE}================================================${NC}\n"
@@ -47,7 +50,7 @@ wait_for_mongodb() {
     local attempt=0
     
     while [ $attempt -lt $max_attempts ]; do
-        if docker exec playoff-picks-mongodb mongosh --eval "db.runCommand('ping')" --quiet &> /dev/null; then
+        if docker exec "$MONGODB_CONTAINER" mongosh --eval "db.runCommand('ping')" --quiet &> /dev/null; then
             echo -e "${GREEN}MongoDB is ready!${NC}"
             return 0
         fi
@@ -63,7 +66,7 @@ wait_for_mongodb() {
 # Step 1: Start MongoDB using Docker Compose
 echo -e "${YELLOW}Step 1: Starting MongoDB container...${NC}"
 cd "$REPO_ROOT"
-if docker ps | grep -q playoff-picks-mongodb; then
+if docker ps | grep -q "$MONGODB_CONTAINER"; then
     echo -e "${GREEN}MongoDB container is already running${NC}"
 else
     docker compose up -d

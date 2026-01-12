@@ -11,6 +11,9 @@ NC='\033[0m' # No Color
 # Get the absolute path to the repository root
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
+# MongoDB container name (must match docker-compose.yml)
+MONGODB_CONTAINER="playoff-picks-mongodb"
+
 echo -e "${BLUE}================================================${NC}"
 echo -e "${BLUE}Stopping Local Development Environment${NC}"
 echo -e "${BLUE}================================================${NC}\n"
@@ -18,9 +21,9 @@ echo -e "${BLUE}================================================${NC}\n"
 # Stop frontend
 if [ -f "$REPO_ROOT/frontend.pid" ]; then
     FRONTEND_PID=$(cat "$REPO_ROOT/frontend.pid")
-    if ps -p $FRONTEND_PID > /dev/null 2>&1; then
+    if ps -p "$FRONTEND_PID" > /dev/null 2>&1; then
         echo -e "${YELLOW}Stopping frontend server (PID: $FRONTEND_PID)...${NC}"
-        kill $FRONTEND_PID
+        kill "$FRONTEND_PID"
         rm "$REPO_ROOT/frontend.pid"
         echo -e "${GREEN}Frontend server stopped${NC}"
     else
@@ -34,9 +37,9 @@ fi
 # Stop backend
 if [ -f "$REPO_ROOT/backend.pid" ]; then
     BACKEND_PID=$(cat "$REPO_ROOT/backend.pid")
-    if ps -p $BACKEND_PID > /dev/null 2>&1; then
+    if ps -p "$BACKEND_PID" > /dev/null 2>&1; then
         echo -e "${YELLOW}Stopping backend server (PID: $BACKEND_PID)...${NC}"
-        kill $BACKEND_PID
+        kill "$BACKEND_PID"
         rm "$REPO_ROOT/backend.pid"
         echo -e "${GREEN}Backend server stopped${NC}"
     else
@@ -50,7 +53,7 @@ fi
 # Stop MongoDB container
 echo -e "${YELLOW}Stopping MongoDB container...${NC}"
 cd "$REPO_ROOT"
-if docker ps | grep -q playoff-picks-mongodb; then
+if docker ps | grep -q "$MONGODB_CONTAINER"; then
     docker compose down
     echo -e "${GREEN}MongoDB container stopped${NC}"
 else

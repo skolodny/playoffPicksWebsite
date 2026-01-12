@@ -172,7 +172,7 @@ async function initMockData() {
                 WR1: 'Justin Jefferson',
                 WR2: 'Tyreek Hill',
                 TE: 'Travis Kelce',
-                FLEX: 'Travis Kelce',
+                FLEX: 'Christian McCaffrey',  // Can be RB/WR/TE - using RB here
                 PK: 'Harrison Butker',
                 DEF: 'Kansas City Chiefs'
             },
