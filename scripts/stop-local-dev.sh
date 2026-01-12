@@ -24,6 +24,20 @@ if [ -f "$REPO_ROOT/frontend.pid" ]; then
     if ps -p "$FRONTEND_PID" > /dev/null 2>&1; then
         echo -e "${YELLOW}Stopping frontend server (PID: $FRONTEND_PID)...${NC}"
         kill "$FRONTEND_PID"
+        
+        # Wait up to 5 seconds for graceful termination
+        WAIT_COUNT=0
+        while ps -p "$FRONTEND_PID" > /dev/null 2>&1 && [ $WAIT_COUNT -lt 5 ]; do
+            sleep 1
+            WAIT_COUNT=$((WAIT_COUNT + 1))
+        done
+        
+        # Force kill if still running
+        if ps -p "$FRONTEND_PID" > /dev/null 2>&1; then
+            echo -e "${YELLOW}Frontend didn't stop gracefully, forcing termination...${NC}"
+            kill -9 "$FRONTEND_PID" 2>/dev/null || true
+        fi
+        
         rm "$REPO_ROOT/frontend.pid"
         echo -e "${GREEN}Frontend server stopped${NC}"
     else
@@ -40,6 +54,20 @@ if [ -f "$REPO_ROOT/backend.pid" ]; then
     if ps -p "$BACKEND_PID" > /dev/null 2>&1; then
         echo -e "${YELLOW}Stopping backend server (PID: $BACKEND_PID)...${NC}"
         kill "$BACKEND_PID"
+        
+        # Wait up to 5 seconds for graceful termination
+        WAIT_COUNT=0
+        while ps -p "$BACKEND_PID" > /dev/null 2>&1 && [ $WAIT_COUNT -lt 5 ]; do
+            sleep 1
+            WAIT_COUNT=$((WAIT_COUNT + 1))
+        done
+        
+        # Force kill if still running
+        if ps -p "$BACKEND_PID" > /dev/null 2>&1; then
+            echo -e "${YELLOW}Backend didn't stop gracefully, forcing termination...${NC}"
+            kill -9 "$BACKEND_PID" 2>/dev/null || true
+        fi
+        
         rm "$REPO_ROOT/backend.pid"
         echo -e "${GREEN}Backend server stopped${NC}"
     else

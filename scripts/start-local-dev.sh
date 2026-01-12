@@ -36,9 +36,24 @@ fi
 # Function to check if a port is in use
 check_port() {
     local port=$1
-    if lsof -Pi :$port -sTCP:LISTEN -t >/dev/null 2>&1 ; then
-        return 0
+    
+    # Prefer lsof if available
+    if command -v lsof >/dev/null 2>&1; then
+        if lsof -Pi :"$port" -sTCP:LISTEN -t >/dev/null 2>&1; then
+            return 0
+        else
+            return 1
+        fi
+    # Fallback to netstat if lsof is not available
+    elif command -v netstat >/dev/null 2>&1; then
+        if netstat -tuln 2>/dev/null | awk '{print $4}' | grep -E "[:.]${port}\$" >/dev/null 2>&1; then
+            return 0
+        else
+            return 1
+        fi
     else
+        echo -e "${RED}Error: Neither 'lsof' nor 'netstat' is installed.${NC}"
+        echo -e "${YELLOW}Please install one of these tools to check port usage.${NC}"
         return 1
     fi
 }
@@ -94,7 +109,7 @@ if [ ! -d "node_modules" ]; then
 fi
 
 export MONGODB_URL="mongodb://localhost:27017/playoff_picks"
-export SECRET_KEY="local-dev-secret-key-change-in-production"
+export SECRET_KEY="INSECURE-LOCAL-ONLY-DO-NOT-USE-IN-PRODUCTION"
 
 node scripts/initMockData.js
 if [ $? -ne 0 ]; then
@@ -109,7 +124,7 @@ echo -e "\n${YELLOW}Step 3: Setting up environment files...${NC}"
 SERVER_ENV="$REPO_ROOT/server/.env"
 cat > "$SERVER_ENV" << EOF
 MONGODB_URL=mongodb://localhost:27017/playoff_picks
-SECRET_KEY=local-dev-secret-key-change-in-production
+SECRET_KEY=INSECURE-LOCAL-ONLY-DO-NOT-USE-IN-PRODUCTION
 EOF
 echo -e "${GREEN}Created server/.env${NC}"
 
@@ -129,19 +144,27 @@ if check_port 5000; then
     echo -e "${YELLOW}Warning: Port 5000 is already in use. Skipping backend startup.${NC}"
     echo -e "${YELLOW}Stop the existing process or use a different port.${NC}"
 else
-    # Start backend in background
+    # Start backend in background (truncate log file first)
+    : > "$REPO_ROOT/server.log"
     npm run dev > "$REPO_ROOT/server.log" 2>&1 &
     BACKEND_PID=$!
     echo $BACKEND_PID > "$REPO_ROOT/backend.pid"
     
-    # Wait for backend to be ready
+    # Wait for backend to be ready with proper polling
     echo -e "${YELLOW}Waiting for backend to be ready...${NC}"
-    sleep 3
+    MAX_WAIT=30
+    ELAPSED=0
+    while [ $ELAPSED -lt $MAX_WAIT ]; do
+        if check_port 5000; then
+            echo -e "${GREEN}Backend server started on http://localhost:5000 (PID: $BACKEND_PID)${NC}"
+            break
+        fi
+        sleep 1
+        ELAPSED=$((ELAPSED + 1))
+    done
     
-    if check_port 5000; then
-        echo -e "${GREEN}Backend server started on http://localhost:5000 (PID: $BACKEND_PID)${NC}"
-    else
-        echo -e "${RED}Backend server failed to start. Check server.log for details.${NC}"
+    if ! check_port 5000; then
+        echo -e "${RED}Backend server failed to start within ${MAX_WAIT}s. Check server.log for details.${NC}"
         exit 1
     fi
 fi
@@ -161,19 +184,27 @@ if check_port 5173; then
     echo -e "${YELLOW}Warning: Port 5173 is already in use. Skipping frontend startup.${NC}"
     echo -e "${YELLOW}Stop the existing process or use a different port.${NC}"
 else
-    # Start frontend in background
+    # Start frontend in background (truncate log file first)
+    : > "$REPO_ROOT/client.log"
     npm run dev > "$REPO_ROOT/client.log" 2>&1 &
     FRONTEND_PID=$!
     echo $FRONTEND_PID > "$REPO_ROOT/frontend.pid"
     
-    # Wait for frontend to be ready
+    # Wait for frontend to be ready with proper polling
     echo -e "${YELLOW}Waiting for frontend to be ready...${NC}"
-    sleep 5
+    MAX_WAIT=60
+    ELAPSED=0
+    while [ $ELAPSED -lt $MAX_WAIT ]; do
+        if check_port 5173; then
+            echo -e "${GREEN}Frontend server started on http://localhost:5173 (PID: $FRONTEND_PID)${NC}"
+            break
+        fi
+        sleep 2
+        ELAPSED=$((ELAPSED + 2))
+    done
     
-    if check_port 5173; then
-        echo -e "${GREEN}Frontend server started on http://localhost:5173 (PID: $FRONTEND_PID)${NC}"
-    else
-        echo -e "${RED}Frontend server failed to start. Check client.log for details.${NC}"
+    if ! check_port 5173; then
+        echo -e "${RED}Frontend server failed to start within ${MAX_WAIT}s. Check client.log for details.${NC}"
         exit 1
     fi
 fi

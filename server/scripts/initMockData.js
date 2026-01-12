@@ -5,7 +5,6 @@
  */
 
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const Information = require('../models/Information');
 const NFLPlayer = require('../models/NFLPlayer');
@@ -13,7 +12,9 @@ const PlayerLineup = require('../models/PlayerLineup');
 
 const MONGODB_URL = process.env.MONGODB_URL || 'mongodb://localhost:27017/playoff_picks';
 
-// Sample data
+// ⚠️ WARNING: These passwords are for LOCAL DEVELOPMENT ONLY!
+// NEVER use these credentials in production or shared environments.
+// These are intentionally simple for testing purposes.
 const mockUsers = [
     { username: 'admin', password: 'admin123', admin: true, scores: [10, 8, 12, 9] },
     { username: 'user1', password: 'password123', admin: false, scores: [8, 7, 10, 6] },
@@ -193,7 +194,24 @@ async function initMockData() {
         console.log(`- Fantasy lineups: 1`);
 
     } catch (error) {
-        console.error('Error initializing mock data:', error);
+        console.error('\n❌ Mock data initialization failed.');
+        
+        // Provide more specific error context to help with debugging
+        if (error instanceof mongoose.Error.ValidationError) {
+            console.error('Validation error while creating mock data:', error.message);
+            if (error.errors) {
+                Object.keys(error.errors).forEach((field) => {
+                    console.error(`  - ${field}: ${error.errors[field].message}`);
+                });
+            }
+        } else if (error.name === 'MongoNetworkError' || 
+                   error.name === 'MongooseServerSelectionError' || 
+                   error.name === 'MongoServerError') {
+            console.error('Database connection or server error:', error.message);
+            console.error('Please verify MongoDB is running and MONGODB_URL is correct.');
+        } else {
+            console.error('Unexpected error:', error.message || error);
+        }
         process.exit(1);
     } finally {
         await mongoose.connection.close();

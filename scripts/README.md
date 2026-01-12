@@ -77,7 +77,7 @@ If you see warnings about ports 5000 or 5173 being in use:
 If MongoDB fails to start or connect:
 1. Make sure Docker is running
 2. Check if port 27017 is available
-3. Try stopping and restarting: `docker-compose down && docker-compose up -d`
+3. Try stopping and restarting: `docker compose down && docker compose up -d`
 
 ### Frontend Not Connecting to Backend
 

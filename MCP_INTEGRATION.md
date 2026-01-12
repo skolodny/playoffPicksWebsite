@@ -64,7 +64,7 @@ The `server/scripts/initMockData.js` script:
 - Clears existing data
 - Creates 4 test users (1 admin, 3 regular users)
 - Creates 2 question sets (1 completed, 1 current)
-- Creates 10 NFL players for fantasy football
+- Creates 11 NFL players for fantasy football
 - Creates 1 sample fantasy lineup
 - Uses bcrypt to properly hash passwords (via User model pre-save hook)
 
