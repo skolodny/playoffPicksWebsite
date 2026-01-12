@@ -77,6 +77,7 @@ npm run dev               # Reads .env file automatically using --env-file flag
 **Environment Setup**: Create `.env` file based on `.env.example`:
 ```
 MONGODB_URL=your_mongodb_connection_string
+SECRET_KEY=your_jwt_secret_key
 ```
 
 **Configuration Files**:
@@ -193,20 +194,24 @@ server/
 
 ## Known Issues & Workarounds
 
-### 1. MongoDB Connection Required for Server Startup
+### 1. MongoDB Connection and Environment Variables
 
-**Issue**: Server requires `MONGODB_URL` environment variable to start (see TODO comment in `server.js:37`)
+**Issue**: Server requires `MONGODB_URL` environment variable to start. Additionally, `SECRET_KEY` has a hardcoded fallback ('yourSecretKey') in `routes/fantasyRoutes.js` line 12, which is marked as a security risk.
 
 **Workaround**: 
-- For local dev: Create `.env` file with `MONGODB_URL` and use `npm run dev`
+- For local dev: Create `.env` file with both `MONGODB_URL` and `SECRET_KEY`, then use `npm run dev`
 - Health check endpoint (`/health`) works without MongoDB
 - Tests run successfully without MongoDB (use mocked database)
+- Production deployments must use environment variables from hosting platform
 
-### 2. Security Note: Hardcoded Secrets
+### 2. Environment Variable Configuration
 
-**Issue**: The codebase has TODO comments indicating MongoDB URL should be in environment variables. There's a hardcoded fallback in `routes/fantasyRoutes.js` marked as a security risk.
+**Issue**: Both `MONGODB_URL` (server.js) and `SECRET_KEY` (fantasyRoutes.js) need to be properly configured.
 
-**Current State**: Use `.env` file for local development; production uses environment variables from hosting platform
+**Current State**: 
+- TODO comments in codebase indicate these should be environment variables only
+- SECRET_KEY has a hardcoded fallback that should be removed for production
+- Use `.env` file for local development; production uses environment variables from hosting platform
 
 ### 3. Client Build Chunk Size Warning
 
