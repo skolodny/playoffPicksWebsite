@@ -1,0 +1,20 @@
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: playoff-picks-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=playoff_picks
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: mongosh localhost:27017/playoff_picks --quiet --eval "db.adminCommand('ping')"
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+volumes:
+  mongodb_data:
+    driver: local

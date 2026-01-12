@@ -238,6 +238,54 @@ server/
 5. **Build order matters**: For client, always install deps → lint → build (in that order)
 6. **Jest configuration**: In `package.json`, tests match `**/tests/**/*.test.js` pattern
 
+## Local Development Environment
+
+### **NEW: Integrated Local Testing Environment**
+
+For comprehensive testing of code changes, use the local development environment that runs all services together:
+
+**Quick Start:**
+```bash
+# Start everything (MongoDB, Backend, Frontend)
+./scripts/start-local-dev.sh
+
+# Stop everything
+./scripts/stop-local-dev.sh
+```
+
+**What it provides:**
+- **MongoDB**: Local database with mock data (users, questions, NFL players, fantasy lineups)
+- **Backend**: Express server on `http://localhost:5000` connected to local MongoDB
+- **Frontend**: Vite dev server on `http://localhost:5173` configured to use local backend
+
+**Test Accounts:**
+- Admin: `admin` / `admin123`
+- Regular users: `user1`, `user2`, `testuser` / `password123` (or `test123` for testuser)
+
+**When to use:**
+- Testing full-stack features end-to-end
+- Debugging API integrations between frontend and backend
+- Testing database schema changes
+- Manual verification of UI changes with real backend
+- Validating authentication flows
+
+**Environment Configuration:**
+The startup script automatically creates:
+- `server/.env` with local MongoDB connection
+- `client/.env` with `VITE_API_BASE_URL=http://localhost:5000`
+
+**Requirements:**
+- Docker (for MongoDB container)
+- Node.js 22.x
+- Ports 27017 (MongoDB), 5000 (backend), 5173 (frontend) available
+
+**Logs:**
+- Backend: `server.log`
+- Frontend: `client.log`
+- Both files are git-ignored
+
+**More details:** See `scripts/README.md` for troubleshooting and advanced usage.
+
 ## Documentation Resources
 
 The server has extensive documentation:
@@ -246,6 +294,7 @@ The server has extensive documentation:
 - `AUTOSCORING_GUIDE.md`: Auto-scoring system with ESPN API configuration
 - `FANTASY_GUIDE.md`: Fantasy football feature documentation
 - `API_DOCUMENTATION.md`: API endpoint reference
+- `scripts/README.md`: Local development environment setup and usage
 
 **Tip**: Consult these files for detailed API behavior before making changes to server routes or services.
 
