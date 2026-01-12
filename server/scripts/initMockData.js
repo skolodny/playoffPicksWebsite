@@ -95,6 +95,7 @@ const mockNFLPlayers = [
     { espn_id: '3916387', name: 'Lamar Jackson', position: 'QB' },
     { espn_id: '4241479', name: 'Christian McCaffrey', position: 'RB' },
     { espn_id: '4035687', name: 'Derrick Henry', position: 'RB' },
+    { espn_id: '4040715', name: 'Josh Jacobs', position: 'RB' },
     { espn_id: '4361370', name: 'Justin Jefferson', position: 'WR' },
     { espn_id: '4361741', name: 'Tyreek Hill', position: 'WR' },
     { espn_id: '4036378', name: 'Travis Kelce', position: 'TE' },
@@ -172,7 +173,7 @@ async function initMockData() {
                 WR1: 'Justin Jefferson',
                 WR2: 'Tyreek Hill',
                 TE: 'Travis Kelce',
-                FLEX: 'Christian McCaffrey',  // Can be RB/WR/TE - using RB here
+                FLEX: 'Josh Jacobs',  // Different RB in FLEX position
                 PK: 'Harrison Butker',
                 DEF: 'Kansas City Chiefs'
             },
