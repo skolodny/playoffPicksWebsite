@@ -196,7 +196,7 @@ server/
 
 ### 1. MongoDB Connection and Environment Variables
 
-**Issue**: Server requires `MONGODB_URL` environment variable to start. Additionally, `SECRET_KEY` has a hardcoded fallback ('yourSecretKey') in `routes/fantasyRoutes.js` line 12, which is marked as a security risk.
+**Issue**: Server requires `MONGODB_URL` environment variable to start.
 
 **Workaround**: 
 - For local dev: Create `.env` file with both `MONGODB_URL` and `SECRET_KEY`, then use `npm run dev`
@@ -209,8 +209,6 @@ server/
 **Issue**: Both `MONGODB_URL` (server.js) and `SECRET_KEY` (fantasyRoutes.js) need to be properly configured.
 
 **Current State**: 
-- TODO comments in codebase indicate these should be environment variables only
-- SECRET_KEY has a hardcoded fallback that should be removed for production
 - Use `.env` file for local development; production uses environment variables from hosting platform
 
 ### 3. Client Build Chunk Size Warning
