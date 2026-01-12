@@ -37,25 +37,35 @@ fi
 check_port() {
     local port=$1
     
-    # Prefer lsof if available
-    if command -v lsof >/dev/null 2>&1; then
-        if lsof -Pi :"$port" -sTCP:LISTEN -t >/dev/null 2>&1; then
-            return 0
-        else
-            return 1
-        fi
-    # Fallback to netstat if lsof is not available
-    elif command -v netstat >/dev/null 2>&1; then
-        if netstat -tuln 2>/dev/null | awk '{print $4}' | grep -E "[:.]${port}\$" >/dev/null 2>&1; then
-            return 0
-        else
-            return 1
-        fi
-    else
-        echo -e "${RED}Error: Neither 'lsof' nor 'netstat' is installed.${NC}"
-        echo -e "${YELLOW}Please install one of these tools to check port usage.${NC}"
-        return 1
+    # Try multiple methods to check if port is in use
+    # Method 1: Try to connect with timeout using /dev/tcp
+    if timeout 1 bash -c "echo >/dev/tcp/localhost/$port" 2>/dev/null; then
+        return 0
     fi
+    
+    # Method 2: Use lsof if available
+    if command -v lsof >/dev/null 2>&1; then
+        if lsof -i TCP:"$port" -sTCP:LISTEN >/dev/null 2>&1; then
+            return 0
+        fi
+    fi
+    
+    # Method 3: Use netstat if available
+    if command -v netstat >/dev/null 2>&1; then
+        if netstat -tuln 2>/dev/null | grep -E "(:${port}|\.${port})[[:space:]]" >/dev/null 2>&1; then
+            return 0
+        fi
+    fi
+    
+    # Method 4: Use nc (netcat) if available
+    if command -v nc >/dev/null 2>&1; then
+        if nc -z localhost "$port" >/dev/null 2>&1; then
+            return 0
+        fi
+    fi
+    
+    # If we get here, port appears to be free
+    return 1
 }
 
 # Function to wait for MongoDB to be ready
