@@ -7,7 +7,9 @@ const fantasyService = require('../services/fantasyService');
 const adminAuth = require('../adminAuth');
 const jwt = require('jsonwebtoken');
 
-const SECRET_KEY = process.env.SECRET_KEY;
+// Use environment variable for SECRET_KEY in production
+// Fallback to 'yourSecretKey' for test environment only
+const SECRET_KEY = process.env.SECRET_KEY || 'yourSecretKey';
 
 /**
  * USER-AUTHENTICATED ROUTES
