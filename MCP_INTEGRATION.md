@@ -73,7 +73,7 @@ The `server/scripts/initMockData.js` script:
 **Backend (.env):**
 ```env
 MONGODB_URL=mongodb://localhost:27017/playoff_picks
-SECRET_KEY=local-dev-secret-key-change-in-production
+SECRET_KEY=INSECURE-LOCAL-ONLY-DO-NOT-USE-IN-PRODUCTION
 ```
 
 **Frontend (.env):**
