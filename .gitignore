@@ -30,3 +30,8 @@ node_modules/
 test-nfl-api.js
 coverage/
 *.log
+
+# Local development
+*.pid
+server.log
+client.log
