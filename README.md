@@ -90,7 +90,7 @@ Three GitHub Actions workflows run on every PR:
 - **User Authentication** - JWT-based authentication with admin roles
 - **Weekly NFL Questions** - Multiple choice questions with auto-scoring
 - **Auto-Scoring** - Automatic scoring using ESPN API
-- **Fantasy Football** - PPR scoring with position requirements (QB, RB, WR, TE, FLEX, K, DEF)
+- **Fantasy Football** - PPR scoring with position requirements (QB, RB, WR, TE, FLEX, PK (Kicker), DEF)
 - **Leaderboards** - Real-time scoring and rankings
 - **Admin Panel** - Question management, scoring control, user management
 
