@@ -40,7 +40,7 @@ npm run build             # Takes ~6-10 seconds, runs TypeScript compiler then V
 npm run dev               # Starts Vite dev server on port 5173
 
 # Preview production build
-npm preview               # Preview the built dist/ folder
+npm run preview           # Preview the built dist/ folder
 ```
 
 **Build Order**: Always run `npm ci` → `npm run lint` → `npm run build`
