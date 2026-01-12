@@ -6,10 +6,8 @@ const NFLPlayer = require('../models/NFLPlayer');
 const fantasyService = require('../services/fantasyService');
 const adminAuth = require('../adminAuth');
 const jwt = require('jsonwebtoken');
-// TODO: This hardcoded fallback is a security risk per project guidelines.
-// Environment variables should be used for sensitive configuration.
-// Remove fallback before deploying to production.
-const SECRET_KEY = process.env.SECRET_KEY || 'yourSecretKey';
+
+const SECRET_KEY = process.env.SECRET_KEY;
 
 /**
  * USER-AUTHENTICATED ROUTES
