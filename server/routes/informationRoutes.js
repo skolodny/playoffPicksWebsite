@@ -57,7 +57,7 @@ router1.post('/submitResponse', async (req, res) => {
         
         const { choices } = req.body;
         if (!Array.isArray(choices)) {
-            return res.status(400).json({ message: 'Invalid request: "choices" must be an array.' });
+            return res.status(400).json({ message: 'Invalid request: choices must be an array.' });
         }
         
         // Validate that no choice is an array (prevent multiple answers in personal picks)
