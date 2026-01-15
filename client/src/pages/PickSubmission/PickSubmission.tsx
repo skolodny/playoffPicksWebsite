@@ -85,14 +85,25 @@ const PickSubmission: React.FC = () => {
             // Switch back to personal responses
             setCurrentChoices(globalUserResponses);
         }
+        // We intentionally omit loadCorrectAnswers and error from dependencies
+        // because they are stable functions that don't need to trigger re-runs.
+        // Including them would cause unnecessary effect executions.
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [adminMode, admin, globalUserResponses]);
-
+    
     const handleChange = (index: number, value: number | string | Array<string | number>) => {
         // Create a copy of the array to avoid mutating state directly
         const newArray = [...currentChoices];
         newArray[index] = value;
         setCurrentChoices(newArray);
+    };
+    
+    // Helper function to get display value for text inputs
+    const getDisplayValue = (choice: string | number | Array<string | number> | undefined): string => {
+        if (Array.isArray(choice)) {
+            return choice.join(', ');
+        }
+        return choice?.toString() || '';
     };
 
     const updateData = async () => {
@@ -102,11 +113,18 @@ const PickSubmission: React.FC = () => {
             return;
         }
         
+        // Runtime check to ensure no arrays in personal picks mode
+        const hasArrayValues = currentChoices.some(choice => Array.isArray(choice));
+        if (hasArrayValues) {
+            error('Cannot submit multiple answers. Please select only one answer per question.');
+            return;
+        }
+        
         await axios
             .post(`${API_BASE_URL}/api/information/submitResponse`, { choices: currentChoices })
             .then(() => {
                 success('Saved successfully');
-                // Type assertion is safe here because we're in personal mode where values are not arrays
+                // Safe to cast since we've verified no arrays above
                 setGlobalUserResponses(currentChoices as Array<string | number>);
             })
             .catch((err) => {
@@ -214,7 +232,7 @@ const PickSubmission: React.FC = () => {
                                 {element.type === "text" || element.type === "number" ? (
                                     <Input
                                         className="form-input"
-                                        value={Array.isArray(currentChoices[index]) ? (currentChoices[index] as Array<string | number>).join(', ') : (currentChoices[index] || "")}
+                                        value={getDisplayValue(currentChoices[index])}
                                         onChange={(e: { target: { value: string | number; }; }) =>
                                             handleChange(index, e.target.value)
                                         }
