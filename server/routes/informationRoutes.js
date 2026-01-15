@@ -57,8 +57,16 @@ router1.post('/submitResponse', async (req, res) => {
         
         const { choices } = req.body;
         if (!Array.isArray(choices)) {
-            return res.status(400).json({ message: 'Invalid request: "choices" must be an array.' });
+            return res.status(400).json({ message: 'Invalid request: choices must be an array.' });
         }
+        
+        // Validate that no choice is an array (prevent multiple answers in personal picks)
+        if (choices.some(choice => Array.isArray(choice))) {
+            return res.status(400).json({ 
+                message: 'Cannot submit multiple answers for a single question. Please select only one answer per question for your personal picks.' 
+            });
+        }
+        
         const header = req.header('authorization');
         const authorization = header.split(' ');
         const token = authorization.length == 2 ? authorization[1] : authorization[0]; 
