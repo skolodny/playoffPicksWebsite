@@ -6,11 +6,17 @@
 
   # Use https://search.nixos.org/packages to find packages
   packages = [
-    pkgs.nodejs_20
+    pkgs.nodejs_22
   ];
 
   # Sets environment variables in the workspace
   env = {};
+  
+  services = {
+    docker = {
+      enable = true;
+    };
+  };
 
   idx = {
     # Search for the extensions you want on https://open-vsx.org/ and use "publisher.id"
@@ -18,6 +24,7 @@
       "dbaeumer.vscode-eslint"
       "PKief.material-icon-theme"
       "ms-azuretools.vscode-docker"
+      "ms-azuretools.vscode-containers"
     ];
 
     # Enable previews
@@ -25,11 +32,13 @@
       enable = true;
       previews = {
         client = {
-          command = [ "sh" "-c" "cd client && npm run dev" ];
+          cwd = "client";
+          command = ["npm" "run" "dev"];
           manager = "web";
         };
         server = {
-          command = [ "sh" "-c" "cd server && npm run dev" ];
+          cwd = "server";
+          command = ["npm" "run" "dev"];
           manager = "web";
         };
       };
