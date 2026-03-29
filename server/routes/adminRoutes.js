@@ -41,7 +41,20 @@ router.post('/calculateScores', async (req, res) => {
         for (let i = 0; i < information.responses.length; i++) {
             let score = 0;
             for (let j = 0; j < information.responses[i].response.length; j++) {
-                if (information.responses[i].response[j] === information.correctAnswers[j]) {
+                const userAnswer = information.responses[i].response[j];
+                const correctAnswer = information.correctAnswers[j];
+                
+                // Support both single answer and multiple correct answers
+                let isCorrect = false;
+                if (Array.isArray(correctAnswer)) {
+                    // Multiple correct answers - check if user's answer is in the array
+                    isCorrect = correctAnswer.includes(userAnswer);
+                } else {
+                    // Single correct answer - direct comparison
+                    isCorrect = userAnswer === correctAnswer;
+                }
+                
+                if (isCorrect) {
                     score += 30;
                 }
             }
@@ -234,7 +247,20 @@ router.post('/autoScore', async (req, res) => {
         for (let i = 0; i < information.responses.length; i++) {
             let score = 0;
             for (let j = 0; j < information.responses[i].response.length; j++) {
-                if (information.responses[i].response[j] === information.correctAnswers[j]) {
+                const userAnswer = information.responses[i].response[j];
+                const correctAnswer = information.correctAnswers[j];
+                
+                // Support both single answer and multiple correct answers
+                let isCorrect = false;
+                if (Array.isArray(correctAnswer)) {
+                    // Multiple correct answers - check if user's answer is in the array
+                    isCorrect = correctAnswer.includes(userAnswer);
+                } else {
+                    // Single correct answer - direct comparison
+                    isCorrect = userAnswer === correctAnswer;
+                }
+                
+                if (isCorrect) {
                     score += 1;
                 }
             }
